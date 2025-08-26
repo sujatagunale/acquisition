@@ -1,6 +1,6 @@
-require('dotenv').config();
+import 'dotenv/config';
 
-module.exports = {
+export default {
   schema: './src/models/*.js',
   out: './drizzle',
   driver: 'pg',

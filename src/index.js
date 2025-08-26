@@ -1,10 +1,9 @@
-require('module-alias/register');
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const logger = require('./config/logger');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import logger from '#config/logger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,10 +49,10 @@ app.use((req, res) => {
 });
 
 // Start server
-if (require.main === module) {
+if (process.argv[1] === new URL(import.meta.url).pathname) {
   app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`);
   });
 }
 
-module.exports = app;
+export default app;

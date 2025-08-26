@@ -1,7 +1,5 @@
-const express = require('express');
-// const { users } = require('@models/users');
-// const { db } = require('@config/database');
-const logger = require('@config/logger');
+import express from 'express';
+import logger from '#config/logger.js';
 
 const router = express.Router();
 
@@ -18,4 +16,4 @@ router.get('/', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

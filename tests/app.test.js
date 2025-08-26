@@ -1,5 +1,5 @@
-const request = require('supertest');
-const app = require('../src/index');
+import request from 'supertest';
+import app from '../src/index.js';
 
 describe('API Endpoints', () => {
   describe('GET /health', () => {
