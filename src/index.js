@@ -5,6 +5,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import logger from '#config/logger.js';
 
+import userRoutes from '#routes/users.js';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -37,6 +39,8 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Acquisition API is running!' });
 });
 
+app.use('/api/users', userRoutes);
+
 // Error handling middleware
 app.use((err, req, res, _next) => {
   logger.error(err.stack);
@@ -49,10 +53,8 @@ app.use((req, res) => {
 });
 
 // Start server
-if (process.argv[1] === new URL(import.meta.url).pathname) {
-  app.listen(PORT, () => {
-    logger.info(`Server is running on port ${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  logger.info(`Server is running on port ${PORT}`);
+});
 
 export default app;
