@@ -1,12 +1,20 @@
 {
   "name": "acquisition",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
+  "imports": {
+    "#config/*": "./src/config/*",
+    "#models/*": "./src/models/*",
+    "#routes/*": "./src/routes/*",
+    "#middleware/*": "./src/middleware/*",
+    "#utils/*": "./src/utils/*"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -26,7 +34,6 @@
     "drizzle-orm": "^0.44.5",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
-    "module-alias": "^2.2.3",
     "morgan": "^1.10.1",
     "winston": "^3.17.0"
   },
@@ -41,13 +48,5 @@
     "jest": "^30.0.5",
     "prettier": "^3.6.2",
     "supertest": "^7.1.4"
-  },
-  "_moduleAliases": {
-    "@": "./src",
-    "@config": "./src/config",
-    "@models": "./src/models",
-    "@routes": "./src/routes",
-    "@middleware": "./src/middleware",
-    "@utils": "./src/utils"
   }
 }

@@ -1,10 +1,11 @@
-require('module-alias/register');
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const logger = require('./config/logger');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import logger from '#config/logger.js';
+
+import userRoutes from '#routes/users.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +39,8 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Acquisition API is running!' });
 });
 
+app.use('/api/users', userRoutes);
+
 // Error handling middleware
 app.use((err, req, res, _next) => {
   logger.error(err.stack);
@@ -50,10 +53,8 @@ app.use((req, res) => {
 });
 
 // Start server
-if (require.main === module) {
-  app.listen(PORT, () => {
-    logger.info(`Server is running on port ${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  logger.info(`Server is running on port ${PORT}`);
+});
 
-module.exports = app;
+export default app;
