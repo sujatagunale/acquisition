@@ -1,0 +1,24 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-lock.yaml
+.cache
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# OS/editor
+.DS_Store
+*.swp
+*.swo
+
+# Tests and coverage
+coverage
+jest-html-reporters-*.html

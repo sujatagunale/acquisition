@@ -1,0 +1,31 @@
+# syntax=docker/dockerfile:1.7
+
+FROM node:20-alpine AS base
+ENV NODE_ENV=staging \
+    CI=true
+WORKDIR /usr/src/app
+RUN addgroup -S nodejs && adduser -S node -G nodejs
+
+# Install all deps (including dev) to allow extra tooling in staging if needed
+FROM base AS deps
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+FROM base AS source
+COPY . .
+
+FROM node:20-alpine AS runner
+ENV NODE_ENV=staging \
+    PORT=3000
+WORKDIR /usr/src/app
+RUN addgroup -S nodejs && adduser -S node -G nodejs
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=source /usr/src/app ./
+
+USER node
+
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD wget -qO- http://127.0.0.1:${PORT}/health || exit 1
+
+# Staging should mirror prod behavior
+CMD ["npm", "start"]
