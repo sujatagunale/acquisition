@@ -10,15 +10,17 @@ const router = express.Router();
 router.get('/', authenticateToken, requireAdmin, async (req, res) => {
   try {
     logger.info('Fetching all users');
-    
-    const allUsers = await db.select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      role: users.role,
-      created_at: users.created_at,
-      updated_at: users.updated_at,
-    }).from(users);
+
+    const allUsers = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        created_at: users.created_at,
+        updated_at: users.updated_at,
+      })
+      .from(users);
 
     res.json({
       message: 'Users retrieved successfully',
@@ -44,14 +46,18 @@ router.get('/:id', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const [user] = await db.select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      role: users.role,
-      created_at: users.created_at,
-      updated_at: users.updated_at,
-    }).from(users).where(eq(users.id, userId)).limit(1);
+    const [user] = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        created_at: users.created_at,
+        updated_at: users.updated_at,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -83,7 +89,9 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 
     if (role && req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Only admins can change user roles' });
+      return res
+        .status(403)
+        .json({ error: 'Only admins can change user roles' });
     }
 
     const updates = {};
@@ -103,7 +111,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     updates.updated_at = new Date();
 
-    const [updatedUser] = await db.update(users)
+    const [updatedUser] = await db
+      .update(users)
       .set(updates)
       .where(eq(users.id, userId))
       .returning({
@@ -126,11 +135,11 @@ router.put('/:id', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     logger.error('Error updating user:', error);
-    
+
     if (error.message && error.message.includes('unique')) {
       return res.status(409).json({ error: 'Email already exists' });
     }
-    
+
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -148,7 +157,8 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Cannot delete your own account' });
     }
 
-    const [deletedUser] = await db.delete(users)
+    const [deletedUser] = await db
+      .delete(users)
       .where(eq(users.id, userId))
       .returning({
         id: users.id,

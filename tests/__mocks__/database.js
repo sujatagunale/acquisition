@@ -21,14 +21,18 @@ mockDb.select.mockImplementation(() => ({
 
 mockDb.insert.mockImplementation(() => ({
   values: jest.fn().mockReturnThis(),
-  returning: jest.fn().mockImplementation(() => Promise.resolve([{
-    id: nextId++,
-    name: 'Test User',
-    email: 'test@example.com',
-    role: 'user',
-    created_at: new Date(),
-    updated_at: new Date(),
-  }])),
+  returning: jest.fn().mockImplementation(() =>
+    Promise.resolve([
+      {
+        id: nextId++,
+        name: 'Test User',
+        email: 'test@example.com',
+        role: 'user',
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+    ])
+  ),
 }));
 
 export const db = mockDb;
