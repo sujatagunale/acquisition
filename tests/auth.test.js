@@ -1,5 +1,5 @@
 import request from 'supertest';
-import app from '../src/index.js';
+import app from '../src/app.js';
 
 describe('Authentication Endpoints', () => {
   let userCookie; // eslint-disable-line no-unused-vars

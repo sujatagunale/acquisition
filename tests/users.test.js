@@ -1,5 +1,5 @@
 import request from 'supertest';
-import app from '../src/index.js';
+import app from '../src/app.js';
 
 describe('User Endpoints', () => {
   let userCookie;

@@ -1,4 +1,3 @@
-const mockUsers = [];
 let nextId = 1;
 
 const mockDb = {
