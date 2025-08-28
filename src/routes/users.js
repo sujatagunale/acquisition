@@ -7,8 +7,6 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     logger.info('Fetching all users');
-    // Example using Drizzle ORM (would need actual database connection)
-    // const allUsers = await db.select().from(users);
     res.json({ message: 'Users endpoint - absolute imports working!' });
   } catch (error) {
     logger.error('Error fetching users:', error);
