@@ -46,7 +46,7 @@ export function verifyToken(token) {
   }
 }
 
-export async function createUser({ name, email, password, role = 'user' }) {
+export async function createUser({ name, email, password: inputPassword, role = 'user' }) {
   try {
     const existingUser = await db
       .select()
@@ -58,14 +58,14 @@ export async function createUser({ name, email, password, role = 'user' }) {
       throw new Error('User with this email already exists');
     }
 
-    const password_hash = await hashPassword(password);
+    const hashedPassword = await hashPassword(inputPassword);
 
     const [newUser] = await db
       .insert(users)
       .values({
         name,
         email,
-        password_hash,
+        password: hashedPassword,
         role,
       })
       .returning({
@@ -84,7 +84,7 @@ export async function createUser({ name, email, password, role = 'user' }) {
   }
 }
 
-export async function authenticateUser(email, password) {
+export async function authenticateUser(email, inputPassword) {
   try {
     const [user] = await db
       .select()
@@ -96,14 +96,14 @@ export async function authenticateUser(email, password) {
       throw new Error('Invalid credentials');
     }
 
-    const isValidPassword = await comparePassword(password, user.password_hash);
+    const isValidPassword = await comparePassword(inputPassword, user.password);
 
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
     }
 
     // eslint-disable-next-line no-unused-vars
-    const { password_hash, ...userWithoutPassword } = user;
+    const { password, ...userWithoutPassword } = user;
     logger.info(`User authenticated successfully: ${email}`);
     return userWithoutPassword;
   } catch (error) {

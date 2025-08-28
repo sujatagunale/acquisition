@@ -1,5 +1,5 @@
 import {
-  getAllUsers,
+  getAllUsers as getAllUsersService,
   getUserById,
   updateUser,
   deleteUser,
@@ -12,11 +12,11 @@ import logger from '#config/logger.js';
 import { formatValidationError } from '#utils/format.js';
 
 // 🛠️ Get all users
-export const getAllUsersController = async (req, res, next) => {
+export const getAllUsers = async (req, res, next) => {
   try {
     logger.info('Fetching all users');
 
-    const allUsers = await getAllUsers();
+    const allUsers = await getAllUsersService();
 
     res.json({
       message: 'Users retrieved successfully',

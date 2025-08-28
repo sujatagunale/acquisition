@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-  getAllUsersController as getAllUsers,
+  getAllUsers,
   getUserByIdController as getUserById,
   updateUserController as updateUser,
   deleteUserController as deleteUser,

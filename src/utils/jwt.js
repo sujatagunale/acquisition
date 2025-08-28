@@ -22,11 +22,4 @@ export const jwtUtils = {
       throw new Error('Token verification failed');
     }
   },
-
-  getCookieOptions: () => ({
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
-  }),
 };

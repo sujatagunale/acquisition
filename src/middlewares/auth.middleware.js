@@ -1,9 +1,10 @@
 import { verifyToken, getUserById } from '#services/auth.service.js';
 import logger from '#config/logger.js';
+import { cookieUtils } from '#utils/cookies.js';
 
 export const authenticateToken = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    const token = cookieUtils.get(req, 'token');
 
     if (!token) {
       return res.status(401).json({ error: 'Access token required' });

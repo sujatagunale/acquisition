@@ -6,6 +6,7 @@ import {
 import { signupSchema, signinSchema } from '#validations/auth.validation.js';
 import logger from '#config/logger.js';
 import { formatValidationError } from '#utils/format.js';
+import { cookieUtils } from '#utils/cookies.js';
 
 export const signup = async (req, res, next) => {
   try {
@@ -33,12 +34,7 @@ export const signup = async (req, res, next) => {
       role: user.role,
     });
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000,
-    });
+    cookieUtils.set(res, 'token', token);
 
     logger.info(`User registered successfully: ${user.email}`);
     res.status(201).json({
@@ -83,12 +79,7 @@ export const signin = async (req, res, next) => {
       role: user.role,
     });
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000,
-    });
+    cookieUtils.set(res, 'token', token);
 
     logger.info(`User signed in successfully: ${user.email}`);
     res.json({
@@ -114,11 +105,7 @@ export const signin = async (req, res, next) => {
 
 export const signout = async (req, res, next) => {
   try {
-    res.clearCookie('token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-    });
+    cookieUtils.clear(res, 'token');
 
     logger.info('User signed out successfully');
     res.json({ message: 'Signed out successfully' });
