@@ -1,3 +1,7 @@
+Dockerized deployment
+
+- See docs/deployment.md for production and staging Docker setup, build, and run instructions.
+
 # Acquisition API
 
 A Node.js API application built with Express.js, Neon DB PostgreSQL, Drizzle ORM, Winston for logging, and Jest with SuperTest for testing.
