@@ -1,5 +1,4 @@
-import { AuthService } from '#services/auth.service.js';
-import { jwtUtils } from '#utils/jwt.js';
+import { verifyToken, getUserById } from '#services/auth.service.js';
 import logger from '#config/logger.js';
 
 export const authenticateToken = async (req, res, next) => {
@@ -10,8 +9,8 @@ export const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ error: 'Access token required' });
     }
 
-    const decoded = jwtUtils.verify(token);
-    const user = await AuthService.getUserById(decoded.userId);
+    const decoded = verifyToken(token);
+    const user = await getUserById(decoded.id);
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid token' });

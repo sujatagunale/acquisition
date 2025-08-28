@@ -1,36 +1,40 @@
-import { AuthService } from '#services/auth.service.js';
-import { jwtUtils } from '#utils/jwt.js';
+import { createUser, authenticateUser, generateToken } from '#services/auth.service.js';
 import { signupSchema, signinSchema } from '#validations/auth.validation.js';
 import logger from '#config/logger.js';
 
 export class AuthController {
   static async signup(req, res, next) {
     try {
-      const { error, value } = signupSchema.validate(req.body);
+      const validationResult = signupSchema.safeParse(req.body);
       
-      if (error) {
+      if (!validationResult.success) {
         return res.status(400).json({
           error: 'Validation failed',
-          details: error.details.map(detail => detail.message),
+          details: validationResult.error.errors.map(err => err.message),
         });
       }
 
-      const { name, email, password, role } = value;
+      const { name, email, password, role } = validationResult.data;
       
-      const user = await AuthService.createUser({
+      const user = await createUser({
         name,
         email,
         password,
         role,
       });
 
-      const token = jwtUtils.sign({
-        userId: user.id,
+      const token = generateToken({
+        id: user.id,
         email: user.email,
         role: user.role,
       });
 
-      res.cookie('token', token, jwtUtils.getCookieOptions());
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000,
+      });
 
       logger.info(`User registered successfully: ${user.email}`);
       res.status(201).json({
@@ -55,26 +59,31 @@ export class AuthController {
 
   static async signin(req, res, next) {
     try {
-      const { error, value } = signinSchema.validate(req.body);
+      const validationResult = signinSchema.safeParse(req.body);
       
-      if (error) {
+      if (!validationResult.success) {
         return res.status(400).json({
           error: 'Validation failed',
-          details: error.details.map(detail => detail.message),
+          details: validationResult.error.errors.map(err => err.message),
         });
       }
 
-      const { email, password } = value;
+      const { email, password } = validationResult.data;
       
-      const user = await AuthService.authenticateUser(email, password);
+      const user = await authenticateUser(email, password);
 
-      const token = jwtUtils.sign({
-        userId: user.id,
+      const token = generateToken({
+        id: user.id,
         email: user.email,
         role: user.role,
       });
 
-      res.cookie('token', token, jwtUtils.getCookieOptions());
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000,
+      });
 
       logger.info(`User signed in successfully: ${user.email}`);
       res.json({

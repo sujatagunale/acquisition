@@ -1,4 +1,4 @@
-import { UsersService } from '#services/users.service.js';
+import { getAllUsers, getUserById, updateUser, deleteUser } from '#services/users.service.js';
 import { updateUserSchema, userIdSchema } from '#validations/users.validation.js';
 import logger from '#config/logger.js';
 
@@ -7,7 +7,7 @@ export class UsersController {
     try {
       logger.info('Fetching all users');
       
-      const allUsers = await UsersService.getAllUsers();
+      const allUsers = await getAllUsers();
 
       res.json({
         message: 'Users retrieved successfully',
@@ -22,22 +22,22 @@ export class UsersController {
 
   static async getUserById(req, res, next) {
     try {
-      const { error: paramError, value: paramValue } = userIdSchema.validate({ id: parseInt(req.params.id, 10) });
+      const paramValidation = userIdSchema.safeParse({ id: parseInt(req.params.id, 10) });
       
-      if (paramError) {
+      if (!paramValidation.success) {
         return res.status(400).json({
-          error: 'Validation failed',
-          details: paramError.details.map(detail => detail.message),
+          error: 'Invalid user ID',
+          details: paramValidation.error.errors?.map(err => err.message) || ['Invalid user ID'],
         });
       }
 
-      const { id: userId } = paramValue;
+      const { id: userId } = paramValidation.data;
 
       if (req.user.role !== 'admin' && req.user.id !== userId) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
-      const user = await UsersService.getUserById(userId);
+      const user = await getUserById(userId);
 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
@@ -56,35 +56,35 @@ export class UsersController {
 
   static async updateUser(req, res, next) {
     try {
-      const { error: paramError, value: paramValue } = userIdSchema.validate({ id: parseInt(req.params.id, 10) });
+      const paramValidation = userIdSchema.safeParse({ id: parseInt(req.params.id, 10) });
       
-      if (paramError) {
+      if (!paramValidation.success) {
         return res.status(400).json({
-          error: 'Validation failed',
-          details: paramError.details.map(detail => detail.message),
+          error: 'Invalid user ID',
+          details: paramValidation.error.errors?.map(err => err.message) || ['Invalid user ID'],
         });
       }
 
-      const { id: userId } = paramValue;
+      const { id: userId } = paramValidation.data;
 
       if (req.user.role !== 'admin' && req.user.id !== userId) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
-      const { error: bodyError, value: bodyValue } = updateUserSchema.validate(req.body);
+      const bodyValidation = updateUserSchema.safeParse(req.body);
       
-      if (bodyError) {
+      if (!bodyValidation.success) {
         return res.status(400).json({
-          error: 'Validation failed',
-          details: bodyError.details.map(detail => detail.message),
+          error: 'No valid updates provided',
+          details: bodyValidation.error.errors?.map(err => err.message) || ['Invalid update data'],
         });
       }
 
-      if (bodyValue.role && req.user.role !== 'admin') {
+      if (bodyValidation.data.role && req.user.role !== 'admin') {
         return res.status(403).json({ error: 'Only admins can change user roles' });
       }
 
-      const updatedUser = await UsersService.updateUser(userId, bodyValue);
+      const updatedUser = await updateUser(userId, bodyValidation.data);
 
       if (!updatedUser) {
         return res.status(404).json({ error: 'User not found' });
@@ -108,22 +108,22 @@ export class UsersController {
 
   static async deleteUser(req, res, next) {
     try {
-      const { error: paramError, value: paramValue } = userIdSchema.validate({ id: parseInt(req.params.id, 10) });
+      const paramValidation = userIdSchema.safeParse({ id: parseInt(req.params.id, 10) });
       
-      if (paramError) {
+      if (!paramValidation.success) {
         return res.status(400).json({
-          error: 'Validation failed',
-          details: paramError.details.map(detail => detail.message),
+          error: 'Invalid user ID',
+          details: paramValidation.error.errors?.map(err => err.message) || ['Invalid user ID'],
         });
       }
 
-      const { id: userId } = paramValue;
+      const { id: userId } = paramValidation.data;
 
       if (req.user.id === userId) {
         return res.status(400).json({ error: 'Cannot delete your own account' });
       }
 
-      const deletedUser = await UsersService.deleteUser(userId);
+      const deletedUser = await deleteUser(userId);
 
       if (!deletedUser) {
         return res.status(404).json({ error: 'User not found' });

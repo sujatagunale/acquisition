@@ -1,43 +1,29 @@
-import Joi from 'joi';
+import { z } from 'zod';
 
-export const updateUserSchema = Joi.object({
-  name: Joi.string()
-    .min(2)
-    .max(255)
+export const updateUserSchema = z.object({
+  name: z.string()
+    .min(2, 'Name must be at least 2 characters long')
+    .max(255, 'Name must not exceed 255 characters')
     .trim()
-    .messages({
-      'string.min': 'Name must be at least 2 characters long',
-      'string.max': 'Name must not exceed 255 characters',
-    }),
+    .optional(),
   
-  email: Joi.string()
-    .email()
-    .max(255)
-    .lowercase()
+  email: z.string()
+    .email('Valid email is required')
+    .max(255, 'Email must not exceed 255 characters')
+    .toLowerCase()
     .trim()
-    .messages({
-      'string.email': 'Valid email is required',
-      'string.max': 'Email must not exceed 255 characters',
-    }),
+    .optional(),
   
-  role: Joi.string()
-    .valid('user', 'admin')
-    .messages({
-      'any.only': 'Role must be either user or admin',
-    }),
-}).min(1).messages({
-  'object.min': 'At least one field must be provided for update',
+  role: z.enum(['user', 'admin'], {
+    errorMap: () => ({ message: 'Role must be either user or admin' })
+  }).optional(),
+}).refine(data => Object.keys(data).length > 0, {
+  message: 'At least one field must be provided for update',
 });
 
-export const userIdSchema = Joi.object({
-  id: Joi.number()
-    .integer()
-    .positive()
-    .required()
-    .messages({
-      'number.base': 'User ID must be a number',
-      'number.integer': 'User ID must be an integer',
-      'number.positive': 'User ID must be positive',
-      'any.required': 'User ID is required',
-    }),
+export const userIdSchema = z.object({
+  id: z.coerce.number({
+    errorMap: () => ({ message: 'User ID must be a number' })
+  }).int('User ID must be an integer')
+    .positive('User ID must be positive'),
 });

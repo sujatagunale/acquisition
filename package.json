@@ -39,10 +39,10 @@
     "drizzle-orm": "^0.44.5",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
-    "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^4.1.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",

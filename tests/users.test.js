@@ -1,4 +1,6 @@
 import request from 'supertest';
+import { jest } from '@jest/globals';
+import './setup.js';
 import app from '../src/app.js';
 
 describe('User Endpoints', () => {
@@ -19,6 +21,10 @@ describe('User Endpoints', () => {
     password: 'admin123',
     role: 'admin',
   };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   beforeAll(async () => {
     const userResponse = await request(app)
