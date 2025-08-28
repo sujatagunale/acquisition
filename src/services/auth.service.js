@@ -6,7 +6,8 @@ import { eq } from 'drizzle-orm';
 import logger from '#config/logger.js';
 
 const SALT_ROUNDS = 12;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET =
+  process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_EXPIRES_IN = '15m';
 
 export async function hashPassword(password) {
@@ -47,26 +48,33 @@ export function verifyToken(token) {
 
 export async function createUser({ name, email, password, role = 'user' }) {
   try {
-    const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
     if (existingUser.length > 0) {
       throw new Error('User with this email already exists');
     }
 
     const password_hash = await hashPassword(password);
-    
-    const [newUser] = await db.insert(users).values({
-      name,
-      email,
-      password_hash,
-      role,
-    }).returning({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      role: users.role,
-      created_at: users.created_at,
-    });
+
+    const [newUser] = await db
+      .insert(users)
+      .values({
+        name,
+        email,
+        password_hash,
+        role,
+      })
+      .returning({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        created_at: users.created_at,
+      });
 
     logger.info(`User created successfully: ${email}`);
     return newUser;
@@ -78,14 +86,18 @@ export async function createUser({ name, email, password, role = 'user' }) {
 
 export async function authenticateUser(email, password) {
   try {
-    const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
     if (!user) {
       throw new Error('Invalid credentials');
     }
 
     const isValidPassword = await comparePassword(password, user.password_hash);
-    
+
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
     }
@@ -102,15 +114,19 @@ export async function authenticateUser(email, password) {
 
 export async function getUserById(id) {
   try {
-    const [user] = await db.select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      role: users.role,
-      created_at: users.created_at,
-      updated_at: users.updated_at,
-    }).from(users).where(eq(users.id, id)).limit(1);
-    
+    const [user] = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        created_at: users.created_at,
+        updated_at: users.updated_at,
+      })
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1);
+
     return user || null;
   } catch (error) {
     logger.error('Error getting user by ID:', error);
