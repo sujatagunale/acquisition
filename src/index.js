@@ -3,9 +3,11 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import logger from '#config/logger.js';
 
 import userRoutes from '#routes/users.js';
+import authRoutes from '#routes/auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +17,7 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Morgan logging middleware with Winston
 app.use(
@@ -39,6 +42,7 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Acquisition API is running!' });
 });
 
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
 // Error handling middleware
