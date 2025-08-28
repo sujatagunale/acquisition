@@ -41,7 +41,6 @@ export const signup = async (req, res, next) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        token,
       },
     });
   } catch (error) {
@@ -86,7 +85,6 @@ export const signin = async (req, res, next) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        token,
       },
     });
   } catch (error) {
@@ -102,7 +100,7 @@ export const signin = async (req, res, next) => {
 
 export const signout = async (req, res, next) => {
   try {
-    cookies.remove(res, 'token');
+    cookies.clear(res, 'token');
 
     logger.info('User signed out successfully');
     res.json({ message: 'Signed out successfully' });

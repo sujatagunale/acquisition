@@ -1,9 +1,18 @@
-import { pgTable, uuid, text, numeric, timestamp } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  text,
+  numeric,
+  timestamp,
+  serial,
+} from 'drizzle-orm/pg-core';
 import { users } from './users.model.js';
 
 export const listings = pgTable('listings', {
   id: uuid('id').defaultRandom().primaryKey(),
-  seller_id: uuid('seller_id').references(() => users.id).notNull(),
+  seller_id: serial('seller_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
   title: text('title').notNull(),
   description: text('description'),
   category: text('category'),
