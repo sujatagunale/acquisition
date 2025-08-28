@@ -10,7 +10,12 @@ describe('Auth Routes', () => {
   it('POST /api/auth/signup - should register user and set cookie', async () => {
     const res = await makeAgent()
       .post('/api/auth/signup')
-      .send({ name: 'User One', email: uniqueEmail, password: 'password123', role: 'user' })
+      .send({
+        name: 'User One',
+        email: uniqueEmail,
+        password: 'password123',
+        role: 'user',
+      })
       .expect(201);
 
     expect(res.body).toHaveProperty('message', 'User registered successfully');
@@ -21,7 +26,12 @@ describe('Auth Routes', () => {
   it('POST /api/auth/signup - duplicate email returns 409', async () => {
     await makeAgent()
       .post('/api/auth/signup')
-      .send({ name: 'Dup', email: uniqueEmail, password: 'password123', role: 'user' })
+      .send({
+        name: 'Dup',
+        email: uniqueEmail,
+        password: 'password123',
+        role: 'user',
+      })
       .expect(409);
   });
 
@@ -37,7 +47,12 @@ describe('Auth Routes', () => {
   it('POST /api/auth/signin - should sign in and set cookie', async () => {
     await makeAgent()
       .post('/api/auth/signup')
-      .send({ name: 'Admin', email: adminEmail, password: 'password123', role: 'admin' })
+      .send({
+        name: 'Admin',
+        email: adminEmail,
+        password: 'password123',
+        role: 'admin',
+      })
       .expect(201);
 
     const res = await makeAgent()
@@ -54,7 +69,11 @@ describe('Auth Routes', () => {
 
     await agent
       .post('/api/auth/signup')
-      .send({ name: 'Temp', email: `temp_${Date.now()}@example.com`, password: 'password123' })
+      .send({
+        name: 'Temp',
+        email: `temp_${Date.now()}@example.com`,
+        password: 'password123',
+      })
       .expect(201);
 
     const res = await agent.post('/api/auth/signout').expect(200);
