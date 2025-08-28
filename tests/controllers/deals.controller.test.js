@@ -21,21 +21,21 @@ jest.mock('../../src/config/logger.js', () => ({
   debug: jest.fn(),
 }));
 
-const dealsService = require('../../src/services/deals.service.js');
+import * as dealsService from '../../src/services/deals.service.js';
 
 describe('Deals Controller', () => {
   const mockUser = {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    role: 'user'
+    role: 'user',
   };
 
   const mockAdmin = {
     id: 2,
     name: 'Admin User',
     email: 'admin@example.com',
-    role: 'admin'
+    role: 'admin',
   };
 
   const mockDeal = {
@@ -46,15 +46,19 @@ describe('Deals Controller', () => {
     amount: 50000,
     status: 'pending',
     created_at: new Date(),
-    updated_at: new Date()
+    updated_at: new Date(),
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  const createAuthCookie = (user) => {
-    const token = jwttoken.sign({ id: user.id, email: user.email, role: user.role });
+  const createAuthCookie = user => {
+    const token = jwttoken.sign({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
     return `token=${token}`;
   };
 
@@ -74,8 +78,7 @@ describe('Deals Controller', () => {
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .get('/api/deals');
+      const response = await request(app).get('/api/deals');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -116,7 +119,9 @@ describe('Deals Controller', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockDeal);
-      expect(dealsService.getDealById).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000');
+      expect(dealsService.getDealById).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
+      );
     });
 
     it('should return 404 when deal not found', async () => {
@@ -132,8 +137,9 @@ describe('Deals Controller', () => {
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .get('/api/deals/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).get(
+        '/api/deals/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -166,7 +172,7 @@ describe('Deals Controller', () => {
   describe('POST /api/deals', () => {
     const validDealData = {
       listing_id: '987fcdeb-51a2-43d1-9f12-123456789abc',
-      amount: 50000
+      amount: 50000,
     };
 
     it('should create deal successfully', async () => {
@@ -181,7 +187,10 @@ describe('Deals Controller', () => {
 
       expect(response.status).toBe(201);
       expect(response.body).toEqual(createdDeal);
-      expect(dealsService.createDeal).toHaveBeenCalledWith(mockUser.id, validDealData);
+      expect(dealsService.createDeal).toHaveBeenCalledWith(
+        mockUser.id,
+        validDealData
+      );
     });
 
     it('should return 401 without authentication', async () => {
@@ -235,7 +244,7 @@ describe('Deals Controller', () => {
   describe('PUT /api/deals/:id', () => {
     const updateData = {
       amount: 75000,
-      status: 'in_escrow'
+      status: 'in_escrow',
     };
 
     it('should update deal successfully', async () => {
@@ -250,7 +259,10 @@ describe('Deals Controller', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(updatedDeal);
-      expect(dealsService.updateDeal).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000', updateData);
+      expect(dealsService.updateDeal).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        updateData
+      );
     });
 
     it('should return 404 when deal not found', async () => {
@@ -326,9 +338,11 @@ describe('Deals Controller', () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         message: 'Deal deleted successfully',
-        deal: deletedDeal
+        deal: deletedDeal,
       });
-      expect(dealsService.deleteDeal).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000');
+      expect(dealsService.deleteDeal).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
+      );
     });
 
     it('should return 404 when deal not found', async () => {
@@ -344,8 +358,9 @@ describe('Deals Controller', () => {
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .delete('/api/deals/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).delete(
+        '/api/deals/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -388,14 +403,18 @@ describe('Deals Controller', () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         message: 'Deal accepted successfully',
-        deal: acceptedDeal
+        deal: acceptedDeal,
       });
-      expect(dealsService.acceptDeal).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000', mockUser.id);
+      expect(dealsService.acceptDeal).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        mockUser.id
+      );
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .post('/api/deals/123e4567-e89b-12d3-a456-426614174000/accept');
+      const response = await request(app).post(
+        '/api/deals/123e4567-e89b-12d3-a456-426614174000/accept'
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -467,8 +486,9 @@ describe('Deals Controller', () => {
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .get(`/api/deals/listing/${listingId}`);
+      const response = await request(app).get(
+        `/api/deals/listing/${listingId}`
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -476,7 +496,9 @@ describe('Deals Controller', () => {
 
     it('should handle service errors', async () => {
       dealsService.getUserById.mockResolvedValue(mockUser);
-      dealsService.getDealsByListing.mockRejectedValue(new Error('Database error'));
+      dealsService.getDealsByListing.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app)
         .get(`/api/deals/listing/${listingId}`)

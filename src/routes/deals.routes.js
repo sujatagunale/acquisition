@@ -1,5 +1,8 @@
 import express from 'express';
-import { authenticateToken, requireAdmin } from '#middlewares/auth.middleware.js';
+import {
+  authenticateToken,
+  requireAdmin,
+} from '#middlewares/auth.middleware.js';
 import {
   getAllDeals,
   getDealById,

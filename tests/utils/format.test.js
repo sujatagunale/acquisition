@@ -20,9 +20,7 @@ describe('Format Utils', () => {
 
     it('should format single validation issue', () => {
       const error = {
-        issues: [
-          { message: 'Email is required' }
-        ]
+        issues: [{ message: 'Email is required' }],
       };
       const result = formatValidationError(error);
       expect(result).toBe('Email is required');
@@ -33,11 +31,13 @@ describe('Format Utils', () => {
         issues: [
           { message: 'Email is required' },
           { message: 'Password must be at least 6 characters' },
-          { message: 'Name is required' }
-        ]
+          { message: 'Name is required' },
+        ],
       };
       const result = formatValidationError(error);
-      expect(result).toBe('Email is required, Password must be at least 6 characters, Name is required');
+      expect(result).toBe(
+        'Email is required, Password must be at least 6 characters, Name is required'
+      );
     });
 
     it('should handle empty issues array', () => {
@@ -55,17 +55,17 @@ describe('Format Utils', () => {
     it('should handle complex error objects', () => {
       const error = {
         issues: [
-          { 
+          {
             message: 'Invalid email format',
             path: ['email'],
-            code: 'invalid_string'
+            code: 'invalid_string',
           },
           {
             message: 'Password too short',
             path: ['password'],
-            code: 'too_small'
-          }
-        ]
+            code: 'too_small',
+          },
+        ],
       };
       const result = formatValidationError(error);
       expect(result).toBe('Invalid email format, Password too short');

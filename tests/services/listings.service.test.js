@@ -18,7 +18,6 @@ jest.mock('../../src/config/logger.js', () => ({
   debug: jest.fn(),
 }));
 
-
 describe('Listings Service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -34,7 +33,7 @@ describe('Listings Service', () => {
           description: 'Description 1',
           status: 'listed',
           created_at: new Date(),
-          updated_at: new Date()
+          updated_at: new Date(),
         },
         {
           id: '987fcdeb-51a2-43d1-9f12-123456789abc',
@@ -43,12 +42,12 @@ describe('Listings Service', () => {
           description: 'Description 2',
           status: 'draft',
           created_at: new Date(),
-          updated_at: new Date()
-        }
+          updated_at: new Date(),
+        },
       ];
 
       db.select.mockReturnValue({
-        from: jest.fn().mockResolvedValue(listings)
+        from: jest.fn().mockResolvedValue(listings),
       });
 
       const result = await listingsService.getAllListings();
@@ -59,15 +58,17 @@ describe('Listings Service', () => {
 
     it('should handle database errors', async () => {
       db.select.mockReturnValue({
-        from: jest.fn().mockRejectedValue(new Error('Database error'))
+        from: jest.fn().mockRejectedValue(new Error('Database error')),
       });
 
-      await expect(listingsService.getAllListings()).rejects.toThrow('Database error');
+      await expect(listingsService.getAllListings()).rejects.toThrow(
+        'Database error'
+      );
     });
 
     it('should return empty array when no listings exist', async () => {
       db.select.mockReturnValue({
-        from: jest.fn().mockResolvedValue([])
+        from: jest.fn().mockResolvedValue([]),
       });
 
       const result = await listingsService.getAllListings();
@@ -85,16 +86,16 @@ describe('Listings Service', () => {
       description: 'Test Description',
       status: 'listed',
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     it('should return listing by ID successfully', async () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([listing])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([listing]),
+          }),
+        }),
       });
 
       const result = await listingsService.getListingById(listingId);
@@ -106,9 +107,9 @@ describe('Listings Service', () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([]),
+          }),
+        }),
       });
 
       const result = await listingsService.getListingById(listingId);
@@ -120,12 +121,14 @@ describe('Listings Service', () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockRejectedValue(new Error('Database error'))
-          })
-        })
+            limit: jest.fn().mockRejectedValue(new Error('Database error')),
+          }),
+        }),
       });
 
-      await expect(listingsService.getListingById(listingId)).rejects.toThrow('Database error');
+      await expect(listingsService.getListingById(listingId)).rejects.toThrow(
+        'Database error'
+      );
     });
   });
 
@@ -136,21 +139,21 @@ describe('Listings Service', () => {
       description: 'New Description',
       category: 'SaaS',
       asking_price: 50000,
-      status: 'draft'
+      status: 'draft',
     };
     const createdListing = {
       id: '123e4567-e89b-12d3-a456-426614174000',
       seller_id: sellerId,
       ...listingData,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     it('should create listing successfully', async () => {
       db.insert.mockReturnValue({
         values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([createdListing])
-        })
+          returning: jest.fn().mockResolvedValue([createdListing]),
+        }),
       });
 
       const result = await listingsService.createListing(sellerId, listingData);
@@ -161,11 +164,11 @@ describe('Listings Service', () => {
 
     it('should include seller_id and updated_at in listing data', async () => {
       const valuesMock = jest.fn().mockReturnValue({
-        returning: jest.fn().mockResolvedValue([createdListing])
+        returning: jest.fn().mockResolvedValue([createdListing]),
       });
 
       db.insert.mockReturnValue({
-        values: valuesMock
+        values: valuesMock,
       });
 
       await listingsService.createListing(sellerId, listingData);
@@ -173,18 +176,20 @@ describe('Listings Service', () => {
       expect(valuesMock).toHaveBeenCalledWith({
         ...listingData,
         seller_id: sellerId,
-        updated_at: expect.any(Date)
+        updated_at: expect.any(Date),
       });
     });
 
     it('should handle database errors', async () => {
       db.insert.mockReturnValue({
         values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockRejectedValue(new Error('Database error'))
-        })
+          returning: jest.fn().mockRejectedValue(new Error('Database error')),
+        }),
       });
 
-      await expect(listingsService.createListing(sellerId, listingData)).rejects.toThrow('Database error');
+      await expect(
+        listingsService.createListing(sellerId, listingData)
+      ).rejects.toThrow('Database error');
     });
 
     it('should handle minimal listing data', async () => {
@@ -194,13 +199,13 @@ describe('Listings Service', () => {
         seller_id: sellerId,
         title: 'Minimal Listing',
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       };
 
       db.insert.mockReturnValue({
         values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([minimalListing])
-        })
+          returning: jest.fn().mockResolvedValue([minimalListing]),
+        }),
       });
 
       const result = await listingsService.createListing(sellerId, minimalData);
@@ -214,23 +219,23 @@ describe('Listings Service', () => {
     const updates = {
       title: 'Updated Listing',
       description: 'Updated Description',
-      status: 'listed'
+      status: 'listed',
     };
     const updatedListing = {
       id: listingId,
       seller_id: 1,
       ...updates,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     it('should update listing successfully', async () => {
       db.update.mockReturnValue({
         set: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockResolvedValue([updatedListing])
-          })
-        })
+            returning: jest.fn().mockResolvedValue([updatedListing]),
+          }),
+        }),
       });
 
       const result = await listingsService.updateListing(listingId, updates);
@@ -242,19 +247,19 @@ describe('Listings Service', () => {
     it('should include updated_at timestamp in update data', async () => {
       const setMock = jest.fn().mockReturnValue({
         where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([updatedListing])
-        })
+          returning: jest.fn().mockResolvedValue([updatedListing]),
+        }),
       });
 
       db.update.mockReturnValue({
-        set: setMock
+        set: setMock,
       });
 
       await listingsService.updateListing(listingId, updates);
 
       expect(setMock).toHaveBeenCalledWith({
         ...updates,
-        updated_at: expect.any(Date)
+        updated_at: expect.any(Date),
       });
     });
 
@@ -262,9 +267,9 @@ describe('Listings Service', () => {
       db.update.mockReturnValue({
         set: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockResolvedValue([])
-          })
-        })
+            returning: jest.fn().mockResolvedValue([]),
+          }),
+        }),
       });
 
       const result = await listingsService.updateListing(listingId, updates);
@@ -276,12 +281,14 @@ describe('Listings Service', () => {
       db.update.mockReturnValue({
         set: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockRejectedValue(new Error('Database error'))
-          })
-        })
+            returning: jest.fn().mockRejectedValue(new Error('Database error')),
+          }),
+        }),
       });
 
-      await expect(listingsService.updateListing(listingId, updates)).rejects.toThrow('Database error');
+      await expect(
+        listingsService.updateListing(listingId, updates)
+      ).rejects.toThrow('Database error');
     });
   });
 
@@ -294,14 +301,14 @@ describe('Listings Service', () => {
       description: 'Deleted Description',
       status: 'withdrawn',
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     it('should delete listing successfully', async () => {
       db.delete.mockReturnValue({
         where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([deletedListing])
-        })
+          returning: jest.fn().mockResolvedValue([deletedListing]),
+        }),
       });
 
       const result = await listingsService.deleteListing(listingId);
@@ -313,8 +320,8 @@ describe('Listings Service', () => {
     it('should return null when listing not found', async () => {
       db.delete.mockReturnValue({
         where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([])
-        })
+          returning: jest.fn().mockResolvedValue([]),
+        }),
       });
 
       const result = await listingsService.deleteListing(listingId);
@@ -325,11 +332,13 @@ describe('Listings Service', () => {
     it('should handle database errors', async () => {
       db.delete.mockReturnValue({
         where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockRejectedValue(new Error('Database error'))
-        })
+          returning: jest.fn().mockRejectedValue(new Error('Database error')),
+        }),
       });
 
-      await expect(listingsService.deleteListing(listingId)).rejects.toThrow('Database error');
+      await expect(listingsService.deleteListing(listingId)).rejects.toThrow(
+        'Database error'
+      );
     });
   });
 
@@ -342,7 +351,7 @@ describe('Listings Service', () => {
         title: 'Seller Listing 1',
         status: 'listed',
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       },
       {
         id: '987fcdeb-51a2-43d1-9f12-123456789abc',
@@ -350,15 +359,15 @@ describe('Listings Service', () => {
         title: 'Seller Listing 2',
         status: 'draft',
         created_at: new Date(),
-        updated_at: new Date()
-      }
+        updated_at: new Date(),
+      },
     ];
 
     it('should return listings by seller successfully', async () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
-          where: jest.fn().mockResolvedValue(sellerListings)
-        })
+          where: jest.fn().mockResolvedValue(sellerListings),
+        }),
       });
 
       const result = await listingsService.getListingsBySeller(sellerId);
@@ -369,8 +378,8 @@ describe('Listings Service', () => {
     it('should return empty array when seller has no listings', async () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
-          where: jest.fn().mockResolvedValue([])
-        })
+          where: jest.fn().mockResolvedValue([]),
+        }),
       });
 
       const result = await listingsService.getListingsBySeller(sellerId);
@@ -381,11 +390,13 @@ describe('Listings Service', () => {
     it('should handle database errors', async () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
-          where: jest.fn().mockRejectedValue(new Error('Database error'))
-        })
+          where: jest.fn().mockRejectedValue(new Error('Database error')),
+        }),
       });
 
-      await expect(listingsService.getListingsBySeller(sellerId)).rejects.toThrow('Database error');
+      await expect(
+        listingsService.getListingsBySeller(sellerId)
+      ).rejects.toThrow('Database error');
     });
   });
 });

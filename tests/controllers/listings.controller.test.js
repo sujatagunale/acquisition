@@ -21,14 +21,14 @@ jest.mock('../../src/config/logger.js', () => ({
   debug: jest.fn(),
 }));
 
-const listingsService = require('../../src/services/listings.service.js');
+import * as listingsService from '../../src/services/listings.service.js';
 
 describe('Listings Controller', () => {
   const mockUser = {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    role: 'user'
+    role: 'user',
   };
 
   const mockListing = {
@@ -40,15 +40,19 @@ describe('Listings Controller', () => {
     asking_price: 50000,
     status: 'listed',
     created_at: new Date(),
-    updated_at: new Date()
+    updated_at: new Date(),
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  const createAuthCookie = (user) => {
-    const token = jwttoken.sign({ id: user.id, email: user.email, role: user.role });
+  const createAuthCookie = user => {
+    const token = jwttoken.sign({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
     return `token=${token}`;
   };
 
@@ -57,8 +61,7 @@ describe('Listings Controller', () => {
       const listings = [mockListing];
       listingsService.getAllListings.mockResolvedValue(listings);
 
-      const response = await request(app)
-        .get('/api/listings');
+      const response = await request(app).get('/api/listings');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(listings);
@@ -66,10 +69,11 @@ describe('Listings Controller', () => {
     });
 
     it('should handle service errors', async () => {
-      listingsService.getAllListings.mockRejectedValue(new Error('Database error'));
+      listingsService.getAllListings.mockRejectedValue(
+        new Error('Database error')
+      );
 
-      const response = await request(app)
-        .get('/api/listings');
+      const response = await request(app).get('/api/listings');
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Internal server error');
@@ -78,8 +82,7 @@ describe('Listings Controller', () => {
     it('should return empty array when no listings exist', async () => {
       listingsService.getAllListings.mockResolvedValue([]);
 
-      const response = await request(app)
-        .get('/api/listings');
+      const response = await request(app).get('/api/listings');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual([]);
@@ -98,12 +101,13 @@ describe('Listings Controller', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(userListings);
-      expect(listingsService.getListingsBySeller).toHaveBeenCalledWith(mockUser.id);
+      expect(listingsService.getListingsBySeller).toHaveBeenCalledWith(
+        mockUser.id
+      );
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .get('/api/listings/my');
+      const response = await request(app).get('/api/listings/my');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -111,7 +115,9 @@ describe('Listings Controller', () => {
 
     it('should handle service errors', async () => {
       listingsService.getUserById.mockResolvedValue(mockUser);
-      listingsService.getListingsBySeller.mockRejectedValue(new Error('Database error'));
+      listingsService.getListingsBySeller.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app)
         .get('/api/listings/my')
@@ -126,37 +132,43 @@ describe('Listings Controller', () => {
     it('should return listing by ID', async () => {
       listingsService.getListingById.mockResolvedValue(mockListing);
 
-      const response = await request(app)
-        .get('/api/listings/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).get(
+        '/api/listings/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockListing);
-      expect(listingsService.getListingById).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000');
+      expect(listingsService.getListingById).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
+      );
     });
 
     it('should return 404 when listing not found', async () => {
       listingsService.getListingById.mockResolvedValue(null);
 
-      const response = await request(app)
-        .get('/api/listings/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).get(
+        '/api/listings/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('Listing not found');
     });
 
     it('should return 400 for invalid listing ID format', async () => {
-      const response = await request(app)
-        .get('/api/listings/invalid-uuid');
+      const response = await request(app).get('/api/listings/invalid-uuid');
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Validation failed');
     });
 
     it('should handle service errors', async () => {
-      listingsService.getListingById.mockRejectedValue(new Error('Database error'));
+      listingsService.getListingById.mockRejectedValue(
+        new Error('Database error')
+      );
 
-      const response = await request(app)
-        .get('/api/listings/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).get(
+        '/api/listings/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Internal server error');
@@ -169,7 +181,7 @@ describe('Listings Controller', () => {
       description: 'New Description',
       category: 'E-commerce',
       asking_price: 75000,
-      status: 'draft'
+      status: 'draft',
     };
 
     it('should create listing successfully', async () => {
@@ -184,7 +196,10 @@ describe('Listings Controller', () => {
 
       expect(response.status).toBe(201);
       expect(response.body).toEqual(createdListing);
-      expect(listingsService.createListing).toHaveBeenCalledWith(mockUser.id, validListingData);
+      expect(listingsService.createListing).toHaveBeenCalledWith(
+        mockUser.id,
+        validListingData
+      );
     });
 
     it('should return 401 without authentication', async () => {
@@ -210,7 +225,9 @@ describe('Listings Controller', () => {
 
     it('should handle service errors', async () => {
       listingsService.getUserById.mockResolvedValue(mockUser);
-      listingsService.createListing.mockRejectedValue(new Error('Database error'));
+      listingsService.createListing.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app)
         .post('/api/listings')
@@ -241,7 +258,7 @@ describe('Listings Controller', () => {
     const updateData = {
       title: 'Updated Listing',
       description: 'Updated Description',
-      status: 'listed'
+      status: 'listed',
     };
 
     it('should update listing successfully', async () => {
@@ -256,7 +273,10 @@ describe('Listings Controller', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(updatedListing);
-      expect(listingsService.updateListing).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000', updateData);
+      expect(listingsService.updateListing).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000',
+        updateData
+      );
     });
 
     it('should return 404 when listing not found', async () => {
@@ -307,7 +327,9 @@ describe('Listings Controller', () => {
 
     it('should handle service errors', async () => {
       listingsService.getUserById.mockResolvedValue(mockUser);
-      listingsService.updateListing.mockRejectedValue(new Error('Database error'));
+      listingsService.updateListing.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app)
         .put('/api/listings/123e4567-e89b-12d3-a456-426614174000')
@@ -332,9 +354,11 @@ describe('Listings Controller', () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         message: 'Listing deleted successfully',
-        listing: deletedListing
+        listing: deletedListing,
       });
-      expect(listingsService.deleteListing).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000');
+      expect(listingsService.deleteListing).toHaveBeenCalledWith(
+        '123e4567-e89b-12d3-a456-426614174000'
+      );
     });
 
     it('should return 404 when listing not found', async () => {
@@ -350,8 +374,9 @@ describe('Listings Controller', () => {
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .delete('/api/listings/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).delete(
+        '/api/listings/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -370,7 +395,9 @@ describe('Listings Controller', () => {
 
     it('should handle service errors', async () => {
       listingsService.getUserById.mockResolvedValue(mockUser);
-      listingsService.deleteListing.mockRejectedValue(new Error('Database error'));
+      listingsService.deleteListing.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app)
         .delete('/api/listings/123e4567-e89b-12d3-a456-426614174000')

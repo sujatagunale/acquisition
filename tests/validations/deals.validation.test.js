@@ -1,10 +1,15 @@
-import { createDealSchema, updateDealSchema, dealIdSchema, acceptDealSchema } from '../../src/validations/deals.validation.js';
+import {
+  createDealSchema,
+  updateDealSchema,
+  dealIdSchema,
+  acceptDealSchema,
+} from '../../src/validations/deals.validation.js';
 
 describe('Deals Validations', () => {
   describe('createDealSchema', () => {
     const validDealData = {
       listing_id: '123e4567-e89b-12d3-a456-426614174000',
-      amount: 50000
+      amount: 50000,
     };
 
     it('should validate correct deal data', () => {
@@ -15,10 +20,15 @@ describe('Deals Validations', () => {
 
     describe('listing_id validation', () => {
       it('should accept valid UUID for listing_id', () => {
-        const data = { ...validDealData, listing_id: '987fcdeb-51a2-43d1-9f12-123456789abc' };
+        const data = {
+          ...validDealData,
+          listing_id: '987fcdeb-51a2-43d1-9f12-123456789abc',
+        };
         const result = createDealSchema.safeParse(data);
         expect(result.success).toBe(true);
-        expect(result.data.listing_id).toBe('987fcdeb-51a2-43d1-9f12-123456789abc');
+        expect(result.data.listing_id).toBe(
+          '987fcdeb-51a2-43d1-9f12-123456789abc'
+        );
       });
 
       it('should reject invalid UUID format for listing_id', () => {
@@ -51,10 +61,10 @@ describe('Deals Validations', () => {
       });
 
       it('should accept decimal number for amount', () => {
-        const data = { ...validDealData, amount: 50000.50 };
+        const data = { ...validDealData, amount: 50000.5 };
         const result = createDealSchema.safeParse(data);
         expect(result.success).toBe(true);
-        expect(result.data.amount).toBe(50000.50);
+        expect(result.data.amount).toBe(50000.5);
       });
 
       it('should accept zero for amount', () => {
@@ -110,7 +120,9 @@ describe('Deals Validations', () => {
     it('should reject empty update data', () => {
       const result = updateDealSchema.safeParse({});
       expect(result.success).toBe(false);
-      expect(result.error.issues[0].message).toBe('At least one field must be provided for update');
+      expect(result.error.issues[0].message).toBe(
+        'At least one field must be provided for update'
+      );
     });
 
     describe('amount validation in updates', () => {

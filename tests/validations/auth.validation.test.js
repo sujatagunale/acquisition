@@ -1,4 +1,7 @@
-import { signupSchema, signinSchema } from '../../src/validations/auth.validation.js';
+import {
+  signupSchema,
+  signinSchema,
+} from '../../src/validations/auth.validation.js';
 
 describe('Auth Validations', () => {
   describe('signupSchema', () => {
@@ -6,7 +9,7 @@ describe('Auth Validations', () => {
       name: 'John Doe',
       email: 'john@example.com',
       password: 'password123',
-      role: 'user'
+      role: 'user',
     };
 
     it('should validate correct signup data', () => {
@@ -16,7 +19,7 @@ describe('Auth Validations', () => {
         name: 'John Doe',
         email: 'john@example.com',
         password: 'password123',
-        role: 'user'
+        role: 'user',
       });
     });
 
@@ -31,7 +34,7 @@ describe('Auth Validations', () => {
     it('should accept email with spaces and uppercase', () => {
       const data = {
         ...validSignupData,
-        email: '  JOHN@EXAMPLE.COM  '
+        email: '  JOHN@EXAMPLE.COM  ',
       };
       const result = signupSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -40,7 +43,7 @@ describe('Auth Validations', () => {
     it('should trim name', () => {
       const data = {
         ...validSignupData,
-        name: '  John Doe  '
+        name: '  John Doe  ',
       };
       const result = signupSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -52,14 +55,18 @@ describe('Auth Validations', () => {
         const data = { ...validSignupData, name: 'J' };
         const result = signupSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Name must be at least 2 characters long');
+        expect(result.error.issues[0].message).toBe(
+          'Name must be at least 2 characters long'
+        );
       });
 
       it('should reject name longer than 255 characters', () => {
         const data = { ...validSignupData, name: 'a'.repeat(256) };
         const result = signupSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Name must not exceed 255 characters');
+        expect(result.error.issues[0].message).toBe(
+          'Name must not exceed 255 characters'
+        );
       });
 
       it('should accept name with exactly 2 characters', () => {
@@ -88,7 +95,9 @@ describe('Auth Validations', () => {
         const data = { ...validSignupData, email: longEmail };
         const result = signupSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Email must not exceed 255 characters');
+        expect(result.error.issues[0].message).toBe(
+          'Email must not exceed 255 characters'
+        );
       });
 
       it('should accept valid email formats', () => {
@@ -96,7 +105,7 @@ describe('Auth Validations', () => {
           'test@example.com',
           'user.name@domain.co.uk',
           'user+tag@example.org',
-          'user123@test-domain.com'
+          'user123@test-domain.com',
         ];
 
         validEmails.forEach(email => {
@@ -112,14 +121,18 @@ describe('Auth Validations', () => {
         const data = { ...validSignupData, password: '12345' };
         const result = signupSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Password must be at least 6 characters long');
+        expect(result.error.issues[0].message).toBe(
+          'Password must be at least 6 characters long'
+        );
       });
 
       it('should reject password longer than 128 characters', () => {
         const data = { ...validSignupData, password: 'a'.repeat(129) };
         const result = signupSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Password must not exceed 128 characters');
+        expect(result.error.issues[0].message).toBe(
+          'Password must not exceed 128 characters'
+        );
       });
 
       it('should accept password with exactly 6 characters', () => {
@@ -162,7 +175,7 @@ describe('Auth Validations', () => {
   describe('signinSchema', () => {
     const validSigninData = {
       email: 'john@example.com',
-      password: 'password123'
+      password: 'password123',
     };
 
     it('should validate correct signin data', () => {
@@ -174,7 +187,7 @@ describe('Auth Validations', () => {
     it('should accept email with spaces and uppercase', () => {
       const data = {
         ...validSigninData,
-        email: '  JOHN@EXAMPLE.COM  '
+        email: '  JOHN@EXAMPLE.COM  ',
       };
       const result = signinSchema.safeParse(data);
       expect(result.success).toBe(true);

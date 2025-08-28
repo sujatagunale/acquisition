@@ -22,52 +22,43 @@ jest.mock('../../src/config/logger.js', () => ({
 describe('Auth Routes', () => {
   describe('Route definitions', () => {
     it('should have POST /api/auth/signup route', async () => {
-      const response = await request(app)
-        .post('/api/auth/signup')
-        .send({});
+      const response = await request(app).post('/api/auth/signup').send({});
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have POST /api/auth/signin route', async () => {
-      const response = await request(app)
-        .post('/api/auth/signin')
-        .send({});
+      const response = await request(app).post('/api/auth/signin').send({});
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have POST /api/auth/signout route', async () => {
-      const response = await request(app)
-        .post('/api/auth/signout');
+      const response = await request(app).post('/api/auth/signout');
 
       expect(response.status).not.toBe(404);
     });
 
     it('should return 404 for non-existent auth routes', async () => {
-      const response = await request(app)
-        .get('/api/auth/nonexistent');
+      const response = await request(app).get('/api/auth/nonexistent');
 
       expect(response.status).toBe(404);
     });
 
     it('should not accept GET requests on signup route', async () => {
-      const response = await request(app)
-        .get('/api/auth/signup');
+      const response = await request(app).get('/api/auth/signup');
 
       expect(response.status).toBe(404);
     });
 
     it('should not accept GET requests on signin route', async () => {
-      const response = await request(app)
-        .get('/api/auth/signin');
+      const response = await request(app).get('/api/auth/signin');
 
       expect(response.status).toBe(404);
     });
 
     it('should not accept GET requests on signout route', async () => {
-      const response = await request(app)
-        .get('/api/auth/signout');
+      const response = await request(app).get('/api/auth/signout');
 
       expect(response.status).toBe(404);
     });
@@ -84,8 +75,7 @@ describe('Auth Routes', () => {
     });
 
     it('should handle CORS preflight requests', async () => {
-      const response = await request(app)
-        .options('/api/auth/signup');
+      const response = await request(app).options('/api/auth/signup');
 
       expect(response.status).toBe(200);
     });

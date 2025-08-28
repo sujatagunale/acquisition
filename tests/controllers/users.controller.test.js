@@ -21,7 +21,7 @@ jest.mock('../../src/config/logger.js', () => ({
   debug: jest.fn(),
 }));
 
-const usersService = require('../../src/services/users.service.js');
+import * as usersService from '../../src/services/users.service.js';
 
 describe('Users Controller', () => {
   const mockUser = {
@@ -30,7 +30,7 @@ describe('Users Controller', () => {
     email: 'john@example.com',
     role: 'user',
     created_at: new Date(),
-    updated_at: new Date()
+    updated_at: new Date(),
   };
 
   const mockAdmin = {
@@ -39,15 +39,19 @@ describe('Users Controller', () => {
     email: 'admin@example.com',
     role: 'admin',
     created_at: new Date(),
-    updated_at: new Date()
+    updated_at: new Date(),
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  const createAuthCookie = (user) => {
-    const token = jwttoken.sign({ id: user.id, email: user.email, role: user.role });
+  const createAuthCookie = user => {
+    const token = jwttoken.sign({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
     return `token=${token}`;
   };
 
@@ -67,8 +71,7 @@ describe('Users Controller', () => {
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .get('/api/users');
+      const response = await request(app).get('/api/users');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -126,8 +129,7 @@ describe('Users Controller', () => {
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .get('/api/users/1');
+      const response = await request(app).get('/api/users/1');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -161,7 +163,7 @@ describe('Users Controller', () => {
   describe('PUT /api/users/:id', () => {
     const updateData = {
       name: 'John Updated',
-      email: 'john.updated@example.com'
+      email: 'john.updated@example.com',
     };
 
     it('should update user successfully', async () => {
@@ -205,9 +207,7 @@ describe('Users Controller', () => {
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .put('/api/users/1')
-        .send(updateData);
+      const response = await request(app).put('/api/users/1').send(updateData);
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -240,7 +240,7 @@ describe('Users Controller', () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         message: 'User deleted successfully',
-        user: deletedUser
+        user: deletedUser,
       });
       expect(usersService.deleteUser).toHaveBeenCalledWith(1);
     });
@@ -258,8 +258,7 @@ describe('Users Controller', () => {
     });
 
     it('should return 401 without authentication', async () => {
-      const response = await request(app)
-        .delete('/api/users/1');
+      const response = await request(app).delete('/api/users/1');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');

@@ -25,40 +25,41 @@ describe('Listings Routes', () => {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    role: 'user'
+    role: 'user',
   };
 
-  const createAuthCookie = (user) => {
-    const token = jwttoken.sign({ id: user.id, email: user.email, role: user.role });
+  const createAuthCookie = user => {
+    const token = jwttoken.sign({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
     return `token=${token}`;
   };
 
   describe('Route definitions', () => {
     it('should have GET /api/listings route', async () => {
-      const response = await request(app)
-        .get('/api/listings');
+      const response = await request(app).get('/api/listings');
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have GET /api/listings/my route', async () => {
-      const response = await request(app)
-        .get('/api/listings/my');
+      const response = await request(app).get('/api/listings/my');
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have GET /api/listings/:id route', async () => {
-      const response = await request(app)
-        .get('/api/listings/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).get(
+        '/api/listings/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have POST /api/listings route', async () => {
-      const response = await request(app)
-        .post('/api/listings')
-        .send({});
+      const response = await request(app).post('/api/listings').send({});
 
       expect(response.status).not.toBe(404);
     });
@@ -72,15 +73,17 @@ describe('Listings Routes', () => {
     });
 
     it('should have DELETE /api/listings/:id route', async () => {
-      const response = await request(app)
-        .delete('/api/listings/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).delete(
+        '/api/listings/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).not.toBe(404);
     });
 
     it('should return 404 for non-existent listing routes', async () => {
-      const response = await request(app)
-        .get('/api/listings/nonexistent/invalid');
+      const response = await request(app).get(
+        '/api/listings/nonexistent/invalid'
+      );
 
       expect(response.status).toBe(404);
     });
@@ -88,23 +91,22 @@ describe('Listings Routes', () => {
 
   describe('Route authentication middleware', () => {
     it('should not require authentication for GET /api/listings', async () => {
-      const response = await request(app)
-        .get('/api/listings');
+      const response = await request(app).get('/api/listings');
 
       expect(response.status).not.toBe(401);
     });
 
     it('should require authentication for GET /api/listings/my', async () => {
-      const response = await request(app)
-        .get('/api/listings/my');
+      const response = await request(app).get('/api/listings/my');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
     });
 
     it('should not require authentication for GET /api/listings/:id', async () => {
-      const response = await request(app)
-        .get('/api/listings/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).get(
+        '/api/listings/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).not.toBe(401);
     });
@@ -128,8 +130,9 @@ describe('Listings Routes', () => {
     });
 
     it('should require authentication for DELETE /api/listings/:id', async () => {
-      const response = await request(app)
-        .delete('/api/listings/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).delete(
+        '/api/listings/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -194,8 +197,7 @@ describe('Listings Routes', () => {
     });
 
     it('should handle CORS preflight requests', async () => {
-      const response = await request(app)
-        .options('/api/listings');
+      const response = await request(app).options('/api/listings');
 
       expect(response.status).toBe(200);
     });

@@ -6,7 +6,7 @@ describe('JWT Utils', () => {
   describe('sign', () => {
     it('should sign a JWT token with payload', () => {
       const token = jwttoken.sign(mockPayload);
-      
+
       expect(token).toBeDefined();
       expect(typeof token).toBe('string');
       expect(token.split('.')).toHaveLength(3);
@@ -21,7 +21,7 @@ describe('JWT Utils', () => {
     it('should verify a valid JWT token', () => {
       const token = jwttoken.sign(mockPayload);
       const decoded = jwttoken.verify(token);
-      
+
       expect(decoded.id).toBe(mockPayload.id);
       expect(decoded.email).toBe(mockPayload.email);
       expect(decoded.role).toBe(mockPayload.role);
@@ -30,16 +30,23 @@ describe('JWT Utils', () => {
     });
 
     it('should throw error for invalid token', () => {
-      expect(() => jwttoken.verify('invalid-token')).toThrow('Token verification failed');
+      expect(() => jwttoken.verify('invalid-token')).toThrow(
+        'Token verification failed'
+      );
     });
 
     it('should throw error for expired token', () => {
-      const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2MDAwMDAwMDAsImV4cCI6MTYwMDAwMDAwMX0.invalid';
-      expect(() => jwttoken.verify(expiredToken)).toThrow('Token verification failed');
+      const expiredToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2MDAwMDAwMDAsImV4cCI6MTYwMDAwMDAwMX0.invalid';
+      expect(() => jwttoken.verify(expiredToken)).toThrow(
+        'Token verification failed'
+      );
     });
 
     it('should throw error for malformed token', () => {
-      expect(() => jwttoken.verify('malformed.token')).toThrow('Token verification failed');
+      expect(() => jwttoken.verify('malformed.token')).toThrow(
+        'Token verification failed'
+      );
     });
   });
 });

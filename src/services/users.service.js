@@ -5,14 +5,16 @@ import logger from '#config/logger.js';
 
 export async function getAllUsers() {
   try {
-    const allUsers = await db.select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      role: users.role,
-      created_at: users.created_at,
-      updated_at: users.updated_at,
-    }).from(users);
+    const allUsers = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        created_at: users.created_at,
+        updated_at: users.updated_at,
+      })
+      .from(users);
 
     return allUsers;
   } catch (error) {
@@ -23,14 +25,18 @@ export async function getAllUsers() {
 
 export async function getUserById(id) {
   try {
-    const [user] = await db.select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      role: users.role,
-      created_at: users.created_at,
-      updated_at: users.updated_at,
-    }).from(users).where(eq(users.id, id)).limit(1);
+    const [user] = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        created_at: users.created_at,
+        updated_at: users.updated_at,
+      })
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1);
 
     return user || null;
   } catch (error) {
@@ -42,8 +48,9 @@ export async function getUserById(id) {
 export async function updateUser(id, updates) {
   try {
     const updateData = { ...updates, updated_at: new Date() };
-    
-    const [updatedUser] = await db.update(users)
+
+    const [updatedUser] = await db
+      .update(users)
       .set(updateData)
       .where(eq(users.id, id))
       .returning({
@@ -64,7 +71,8 @@ export async function updateUser(id, updates) {
 
 export async function deleteUser(id) {
   try {
-    const [deletedUser] = await db.delete(users)
+    const [deletedUser] = await db
+      .delete(users)
       .where(eq(users.id, id))
       .returning({
         id: users.id,

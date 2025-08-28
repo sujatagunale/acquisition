@@ -1,4 +1,8 @@
-import { authenticateToken, requireRole, requireAdmin } from '../../src/middlewares/auth.middleware.js';
+import {
+  authenticateToken,
+  requireRole,
+  requireAdmin,
+} from '../../src/middlewares/auth.middleware.js';
 import { jwttoken } from '../../src/utils/jwt.js';
 
 jest.mock('../../src/services/users.service.js');
@@ -10,7 +14,7 @@ jest.mock('../../src/config/logger.js', () => ({
   debug: jest.fn(),
 }));
 
-const { getUserById } = require('../../src/services/users.service.js');
+import { getUserById } from '../../src/services/users.service.js';
 
 describe('Auth Middleware', () => {
   let req, res, next;
@@ -18,11 +22,11 @@ describe('Auth Middleware', () => {
   beforeEach(() => {
     req = {
       cookies: {},
-      user: null
+      user: null,
     };
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
     };
     next = jest.fn();
     jest.clearAllMocks();
@@ -33,7 +37,7 @@ describe('Auth Middleware', () => {
       id: 1,
       name: 'John Doe',
       email: 'john@example.com',
-      role: 'user'
+      role: 'user',
     };
 
     it('should authenticate user with valid token', async () => {
@@ -71,13 +75,19 @@ describe('Auth Middleware', () => {
       await authenticateToken(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid or expired token' });
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Invalid or expired token',
+      });
       expect(next).not.toHaveBeenCalled();
     });
 
     it('should return 401 when user not found', async () => {
       const token = 'valid-token';
-      const decoded = { id: 999, email: 'nonexistent@example.com', role: 'user' };
+      const decoded = {
+        id: 999,
+        email: 'nonexistent@example.com',
+        role: 'user',
+      };
 
       req.cookies.token = token;
       jwttoken.verify.mockReturnValue(decoded);
@@ -101,7 +111,9 @@ describe('Auth Middleware', () => {
       await authenticateToken(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid or expired token' });
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Invalid or expired token',
+      });
       expect(next).not.toHaveBeenCalled();
     });
 
@@ -115,7 +127,9 @@ describe('Auth Middleware', () => {
       await authenticateToken(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid or expired token' });
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Invalid or expired token',
+      });
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -125,7 +139,7 @@ describe('Auth Middleware', () => {
       id: 1,
       name: 'John Doe',
       email: 'john@example.com',
-      role: 'user'
+      role: 'user',
     };
 
     it('should allow access for user with correct role', () => {
@@ -155,7 +169,9 @@ describe('Auth Middleware', () => {
       middleware(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(403);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Insufficient permissions' });
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Insufficient permissions',
+      });
       expect(next).not.toHaveBeenCalled();
     });
 
@@ -165,7 +181,9 @@ describe('Auth Middleware', () => {
       middleware(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Authentication required' });
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Authentication required',
+      });
       expect(next).not.toHaveBeenCalled();
     });
 
@@ -196,7 +214,9 @@ describe('Auth Middleware', () => {
       middleware(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(403);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Insufficient permissions' });
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Insufficient permissions',
+      });
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -207,7 +227,7 @@ describe('Auth Middleware', () => {
         id: 1,
         name: 'Admin User',
         email: 'admin@example.com',
-        role: 'admin'
+        role: 'admin',
       };
 
       requireAdmin(req, res, next);
@@ -221,13 +241,15 @@ describe('Auth Middleware', () => {
         id: 1,
         name: 'Regular User',
         email: 'user@example.com',
-        role: 'user'
+        role: 'user',
       };
 
       requireAdmin(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(403);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Insufficient permissions' });
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Insufficient permissions',
+      });
       expect(next).not.toHaveBeenCalled();
     });
 
@@ -235,7 +257,9 @@ describe('Auth Middleware', () => {
       requireAdmin(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Authentication required' });
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Authentication required',
+      });
       expect(next).not.toHaveBeenCalled();
     });
   });

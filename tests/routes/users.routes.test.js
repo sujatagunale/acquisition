@@ -25,54 +25,52 @@ describe('Users Routes', () => {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    role: 'user'
+    role: 'user',
   };
 
   const mockAdmin = {
     id: 2,
     name: 'Admin User',
     email: 'admin@example.com',
-    role: 'admin'
+    role: 'admin',
   };
 
-  const createAuthCookie = (user) => {
-    const token = jwttoken.sign({ id: user.id, email: user.email, role: user.role });
+  const createAuthCookie = user => {
+    const token = jwttoken.sign({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
     return `token=${token}`;
   };
 
   describe('Route definitions', () => {
     it('should have GET /api/users route', async () => {
-      const response = await request(app)
-        .get('/api/users');
+      const response = await request(app).get('/api/users');
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have GET /api/users/:id route', async () => {
-      const response = await request(app)
-        .get('/api/users/1');
+      const response = await request(app).get('/api/users/1');
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have PUT /api/users/:id route', async () => {
-      const response = await request(app)
-        .put('/api/users/1')
-        .send({});
+      const response = await request(app).put('/api/users/1').send({});
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have DELETE /api/users/:id route', async () => {
-      const response = await request(app)
-        .delete('/api/users/1');
+      const response = await request(app).delete('/api/users/1');
 
       expect(response.status).not.toBe(404);
     });
 
     it('should return 404 for non-existent user routes', async () => {
-      const response = await request(app)
-        .get('/api/users/nonexistent/invalid');
+      const response = await request(app).get('/api/users/nonexistent/invalid');
 
       expect(response.status).toBe(404);
     });
@@ -80,16 +78,14 @@ describe('Users Routes', () => {
 
   describe('Route authentication middleware', () => {
     it('should require authentication for GET /api/users', async () => {
-      const response = await request(app)
-        .get('/api/users');
+      const response = await request(app).get('/api/users');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
     });
 
     it('should require authentication for GET /api/users/:id', async () => {
-      const response = await request(app)
-        .get('/api/users/1');
+      const response = await request(app).get('/api/users/1');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -105,8 +101,7 @@ describe('Users Routes', () => {
     });
 
     it('should require authentication for DELETE /api/users/:id', async () => {
-      const response = await request(app)
-        .delete('/api/users/1');
+      const response = await request(app).delete('/api/users/1');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -178,8 +173,7 @@ describe('Users Routes', () => {
     });
 
     it('should handle CORS preflight requests', async () => {
-      const response = await request(app)
-        .options('/api/users');
+      const response = await request(app).options('/api/users');
 
       expect(response.status).toBe(200);
     });

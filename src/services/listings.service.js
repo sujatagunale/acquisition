@@ -15,7 +15,11 @@ export async function getAllListings() {
 
 export async function getListingById(id) {
   try {
-    const [listing] = await db.select().from(listings).where(eq(listings.id, id)).limit(1);
+    const [listing] = await db
+      .select()
+      .from(listings)
+      .where(eq(listings.id, id))
+      .limit(1);
     return listing || null;
   } catch (error) {
     logger.error('Error fetching listing by ID:', error);
@@ -25,8 +29,15 @@ export async function getListingById(id) {
 
 export async function createListing(sellerId, listingData) {
   try {
-    const newListing = { ...listingData, seller_id: sellerId, updated_at: new Date() };
-    const [createdListing] = await db.insert(listings).values(newListing).returning();
+    const newListing = {
+      ...listingData,
+      seller_id: sellerId,
+      updated_at: new Date(),
+    };
+    const [createdListing] = await db
+      .insert(listings)
+      .values(newListing)
+      .returning();
     return createdListing;
   } catch (error) {
     logger.error('Error creating listing:', error);
@@ -37,7 +48,8 @@ export async function createListing(sellerId, listingData) {
 export async function updateListing(id, updates) {
   try {
     const updateData = { ...updates, updated_at: new Date() };
-    const [updatedListing] = await db.update(listings)
+    const [updatedListing] = await db
+      .update(listings)
       .set(updateData)
       .where(eq(listings.id, id))
       .returning();
@@ -50,7 +62,8 @@ export async function updateListing(id, updates) {
 
 export async function deleteListing(id) {
   try {
-    const [deletedListing] = await db.delete(listings)
+    const [deletedListing] = await db
+      .delete(listings)
       .where(eq(listings.id, id))
       .returning();
     return deletedListing || null;
@@ -62,7 +75,10 @@ export async function deleteListing(id) {
 
 export async function getListingsBySeller(sellerId) {
   try {
-    const sellerListings = await db.select().from(listings).where(eq(listings.seller_id, sellerId));
+    const sellerListings = await db
+      .select()
+      .from(listings)
+      .where(eq(listings.seller_id, sellerId));
     return sellerListings;
   } catch (error) {
     logger.error('Error fetching listings by seller:', error);

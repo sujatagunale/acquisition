@@ -5,7 +5,7 @@ describe('App', () => {
   describe('GET /health', () => {
     it('should return 200 and health status', async () => {
       const response = await request(app).get('/health');
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         status: 'OK',
@@ -18,7 +18,7 @@ describe('App', () => {
   describe('GET /api', () => {
     it('should return 200 and API info', async () => {
       const response = await request(app).get('/api');
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         message: 'Acquisition API is running!',
@@ -29,7 +29,7 @@ describe('App', () => {
   describe('404 routes', () => {
     it('should return 404 for non-existent routes', async () => {
       const response = await request(app).get('/nonexistent');
-      
+
       expect(response.status).toBe(404);
       expect(response.body).toEqual({
         error: 'Route not found',
@@ -38,7 +38,7 @@ describe('App', () => {
 
     it('should return 404 for non-existent API routes', async () => {
       const response = await request(app).get('/api/non-existent');
-      
+
       expect(response.status).toBe(404);
       expect(response.body).toEqual({
         error: 'Route not found',
@@ -52,7 +52,7 @@ describe('App', () => {
         .options('/api')
         .set('Origin', 'http://localhost:3000')
         .set('Access-Control-Request-Method', 'GET');
-      
+
       expect(response.status).toBe(204);
     });
   });
@@ -63,7 +63,7 @@ describe('App', () => {
         .post('/api/auth/signup')
         .set('Content-Type', 'application/json')
         .send({ test: 'data' });
-      
+
       expect(response.status).toBe(400);
     });
   });
@@ -74,7 +74,7 @@ describe('App', () => {
         .post('/api/auth/signup')
         .set('Content-Type', 'application/json')
         .send('{"invalid": json}');
-      
+
       expect(response.status).toBe(400);
     });
   });

@@ -1,4 +1,7 @@
-import { updateUserSchema, userIdSchema } from '../../src/validations/users.validation.js';
+import {
+  updateUserSchema,
+  userIdSchema,
+} from '../../src/validations/users.validation.js';
 
 describe('Users Validations', () => {
   describe('updateUserSchema', () => {
@@ -6,7 +9,7 @@ describe('Users Validations', () => {
       const data = {
         name: 'John Doe',
         email: 'john@example.com',
-        role: 'admin'
+        role: 'admin',
       };
       const result = updateUserSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -51,7 +54,9 @@ describe('Users Validations', () => {
     it('should reject empty update data', () => {
       const result = updateUserSchema.safeParse({});
       expect(result.success).toBe(false);
-      expect(result.error.issues[0].message).toBe('At least one field must be provided for update');
+      expect(result.error.issues[0].message).toBe(
+        'At least one field must be provided for update'
+      );
     });
 
     describe('name validation', () => {
@@ -59,14 +64,18 @@ describe('Users Validations', () => {
         const data = { name: 'J' };
         const result = updateUserSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Name must be at least 2 characters long');
+        expect(result.error.issues[0].message).toBe(
+          'Name must be at least 2 characters long'
+        );
       });
 
       it('should reject name longer than 255 characters', () => {
         const data = { name: 'a'.repeat(256) };
         const result = updateUserSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Name must not exceed 255 characters');
+        expect(result.error.issues[0].message).toBe(
+          'Name must not exceed 255 characters'
+        );
       });
 
       it('should accept name with exactly 2 characters', () => {
@@ -95,7 +104,9 @@ describe('Users Validations', () => {
         const data = { email: longEmail };
         const result = updateUserSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Email must not exceed 255 characters');
+        expect(result.error.issues[0].message).toBe(
+          'Email must not exceed 255 characters'
+        );
       });
 
       it('should accept valid email formats', () => {
@@ -103,7 +114,7 @@ describe('Users Validations', () => {
           'test@example.com',
           'user.name@domain.co.uk',
           'user+tag@example.org',
-          'user123@test-domain.com'
+          'user123@test-domain.com',
         ];
 
         validEmails.forEach(email => {
@@ -133,7 +144,9 @@ describe('Users Validations', () => {
         const data = { role: 'invalid' };
         const result = updateUserSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Role must be either user or admin');
+        expect(result.error.issues[0].message).toBe(
+          'Role must be either user or admin'
+        );
       });
     });
   });

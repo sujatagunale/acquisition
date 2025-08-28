@@ -25,40 +25,42 @@ describe('Deals Routes', () => {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    role: 'user'
+    role: 'user',
   };
 
   const mockAdmin = {
     id: 2,
     name: 'Admin User',
     email: 'admin@example.com',
-    role: 'admin'
+    role: 'admin',
   };
 
-  const createAuthCookie = (user) => {
-    const token = jwttoken.sign({ id: user.id, email: user.email, role: user.role });
+  const createAuthCookie = user => {
+    const token = jwttoken.sign({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
     return `token=${token}`;
   };
 
   describe('Route definitions', () => {
     it('should have GET /api/deals route', async () => {
-      const response = await request(app)
-        .get('/api/deals');
+      const response = await request(app).get('/api/deals');
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have GET /api/deals/:id route', async () => {
-      const response = await request(app)
-        .get('/api/deals/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).get(
+        '/api/deals/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have POST /api/deals route', async () => {
-      const response = await request(app)
-        .post('/api/deals')
-        .send({});
+      const response = await request(app).post('/api/deals').send({});
 
       expect(response.status).not.toBe(404);
     });
@@ -72,29 +74,31 @@ describe('Deals Routes', () => {
     });
 
     it('should have DELETE /api/deals/:id route', async () => {
-      const response = await request(app)
-        .delete('/api/deals/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).delete(
+        '/api/deals/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have POST /api/deals/:id/accept route', async () => {
-      const response = await request(app)
-        .post('/api/deals/123e4567-e89b-12d3-a456-426614174000/accept');
+      const response = await request(app).post(
+        '/api/deals/123e4567-e89b-12d3-a456-426614174000/accept'
+      );
 
       expect(response.status).not.toBe(404);
     });
 
     it('should have GET /api/deals/listing/:listingId route', async () => {
-      const response = await request(app)
-        .get('/api/deals/listing/987fcdeb-51a2-43d1-9f12-123456789abc');
+      const response = await request(app).get(
+        '/api/deals/listing/987fcdeb-51a2-43d1-9f12-123456789abc'
+      );
 
       expect(response.status).not.toBe(404);
     });
 
     it('should return 404 for non-existent deal routes', async () => {
-      const response = await request(app)
-        .get('/api/deals/nonexistent/invalid');
+      const response = await request(app).get('/api/deals/nonexistent/invalid');
 
       expect(response.status).toBe(404);
     });
@@ -102,28 +106,26 @@ describe('Deals Routes', () => {
 
   describe('Route authentication middleware', () => {
     it('should require authentication for GET /api/deals', async () => {
-      const response = await request(app)
-        .get('/api/deals');
+      const response = await request(app).get('/api/deals');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
     });
 
     it('should require authentication for GET /api/deals/:id', async () => {
-      const response = await request(app)
-        .get('/api/deals/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).get(
+        '/api/deals/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
     });
 
     it('should require authentication for POST /api/deals', async () => {
-      const response = await request(app)
-        .post('/api/deals')
-        .send({
-          listing_id: '987fcdeb-51a2-43d1-9f12-123456789abc',
-          amount: 50000
-        });
+      const response = await request(app).post('/api/deals').send({
+        listing_id: '987fcdeb-51a2-43d1-9f12-123456789abc',
+        amount: 50000,
+      });
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -139,24 +141,27 @@ describe('Deals Routes', () => {
     });
 
     it('should require authentication for DELETE /api/deals/:id', async () => {
-      const response = await request(app)
-        .delete('/api/deals/123e4567-e89b-12d3-a456-426614174000');
+      const response = await request(app).delete(
+        '/api/deals/123e4567-e89b-12d3-a456-426614174000'
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
     });
 
     it('should require authentication for POST /api/deals/:id/accept', async () => {
-      const response = await request(app)
-        .post('/api/deals/123e4567-e89b-12d3-a456-426614174000/accept');
+      const response = await request(app).post(
+        '/api/deals/123e4567-e89b-12d3-a456-426614174000/accept'
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
     });
 
     it('should require authentication for GET /api/deals/listing/:listingId', async () => {
-      const response = await request(app)
-        .get('/api/deals/listing/987fcdeb-51a2-43d1-9f12-123456789abc');
+      const response = await request(app).get(
+        '/api/deals/listing/987fcdeb-51a2-43d1-9f12-123456789abc'
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access token required');
@@ -183,12 +188,35 @@ describe('Deals Routes', () => {
 
     it('should allow any authenticated user for other deal routes', async () => {
       const routes = [
-        { method: 'get', path: '/api/deals/123e4567-e89b-12d3-a456-426614174000' },
-        { method: 'post', path: '/api/deals', body: { listing_id: '987fcdeb-51a2-43d1-9f12-123456789abc', amount: 50000 } },
-        { method: 'put', path: '/api/deals/123e4567-e89b-12d3-a456-426614174000', body: { amount: 75000 } },
-        { method: 'delete', path: '/api/deals/123e4567-e89b-12d3-a456-426614174000' },
-        { method: 'post', path: '/api/deals/123e4567-e89b-12d3-a456-426614174000/accept' },
-        { method: 'get', path: '/api/deals/listing/987fcdeb-51a2-43d1-9f12-123456789abc' }
+        {
+          method: 'get',
+          path: '/api/deals/123e4567-e89b-12d3-a456-426614174000',
+        },
+        {
+          method: 'post',
+          path: '/api/deals',
+          body: {
+            listing_id: '987fcdeb-51a2-43d1-9f12-123456789abc',
+            amount: 50000,
+          },
+        },
+        {
+          method: 'put',
+          path: '/api/deals/123e4567-e89b-12d3-a456-426614174000',
+          body: { amount: 75000 },
+        },
+        {
+          method: 'delete',
+          path: '/api/deals/123e4567-e89b-12d3-a456-426614174000',
+        },
+        {
+          method: 'post',
+          path: '/api/deals/123e4567-e89b-12d3-a456-426614174000/accept',
+        },
+        {
+          method: 'get',
+          path: '/api/deals/listing/987fcdeb-51a2-43d1-9f12-123456789abc',
+        },
       ];
 
       for (const route of routes) {
@@ -210,7 +238,7 @@ describe('Deals Routes', () => {
         .set('Content-Type', 'application/json')
         .send({
           listing_id: '987fcdeb-51a2-43d1-9f12-123456789abc',
-          amount: 50000
+          amount: 50000,
         });
 
       expect(response.status).not.toBe(415);
@@ -227,8 +255,7 @@ describe('Deals Routes', () => {
     });
 
     it('should handle CORS preflight requests', async () => {
-      const response = await request(app)
-        .options('/api/deals');
+      const response = await request(app).options('/api/deals');
 
       expect(response.status).toBe(200);
     });

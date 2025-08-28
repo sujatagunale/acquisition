@@ -14,11 +14,11 @@ describe('Error Middleware', () => {
     req = {
       url: '/api/test',
       method: 'GET',
-      ip: '127.0.0.1'
+      ip: '127.0.0.1',
     };
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
     };
     next = jest.fn();
     jest.clearAllMocks();
@@ -28,7 +28,7 @@ describe('Error Middleware', () => {
     const error = {
       name: 'ValidationError',
       message: 'Validation failed',
-      details: 'Email is required'
+      details: 'Email is required',
     };
 
     errorMiddleware(error, req, res, next);
@@ -36,14 +36,14 @@ describe('Error Middleware', () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Validation failed',
-      details: 'Email is required'
+      details: 'Email is required',
     });
   });
 
   it('should handle ValidationError without details', () => {
     const error = {
       name: 'ValidationError',
-      message: 'Validation failed'
+      message: 'Validation failed',
     };
 
     errorMiddleware(error, req, res, next);
@@ -51,14 +51,14 @@ describe('Error Middleware', () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Validation failed',
-      details: 'Validation failed'
+      details: 'Validation failed',
     });
   });
 
   it('should handle UnauthorizedError', () => {
     const error = {
       name: 'UnauthorizedError',
-      message: 'Access denied'
+      message: 'Access denied',
     };
 
     errorMiddleware(error, req, res, next);
@@ -66,14 +66,14 @@ describe('Error Middleware', () => {
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Unauthorized',
-      message: 'Access denied'
+      message: 'Access denied',
     });
   });
 
   it('should handle ForbiddenError', () => {
     const error = {
       name: 'ForbiddenError',
-      message: 'Insufficient permissions'
+      message: 'Insufficient permissions',
     };
 
     errorMiddleware(error, req, res, next);
@@ -81,7 +81,7 @@ describe('Error Middleware', () => {
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Forbidden',
-      message: 'Insufficient permissions'
+      message: 'Insufficient permissions',
     });
   });
 
@@ -89,7 +89,7 @@ describe('Error Middleware', () => {
     const error = {
       name: 'CustomError',
       message: 'Something went wrong',
-      status: 422
+      status: 422,
     };
 
     errorMiddleware(error, req, res, next);
@@ -97,14 +97,14 @@ describe('Error Middleware', () => {
     expect(res.status).toHaveBeenCalledWith(422);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Internal server error',
-      message: 'Something went wrong'
+      message: 'Something went wrong',
     });
   });
 
   it('should handle generic errors without status (default to 500)', () => {
     const error = {
       name: 'GenericError',
-      message: 'Something went wrong'
+      message: 'Something went wrong',
     };
 
     errorMiddleware(error, req, res, next);
@@ -112,7 +112,7 @@ describe('Error Middleware', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Internal server error',
-      message: 'Something went wrong'
+      message: 'Something went wrong',
     });
   });
 
@@ -122,7 +122,7 @@ describe('Error Middleware', () => {
 
     const error = {
       name: 'GenericError',
-      message: 'Sensitive error information'
+      message: 'Sensitive error information',
     };
 
     errorMiddleware(error, req, res, next);
@@ -130,7 +130,7 @@ describe('Error Middleware', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Internal server error',
-      message: 'Something went wrong'
+      message: 'Something went wrong',
     });
 
     process.env.NODE_ENV = originalEnv;
@@ -142,7 +142,7 @@ describe('Error Middleware', () => {
 
     const error = {
       name: 'GenericError',
-      message: 'Detailed error information'
+      message: 'Detailed error information',
     };
 
     errorMiddleware(error, req, res, next);
@@ -150,7 +150,7 @@ describe('Error Middleware', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Internal server error',
-      message: 'Detailed error information'
+      message: 'Detailed error information',
     });
 
     process.env.NODE_ENV = originalEnv;
@@ -158,7 +158,7 @@ describe('Error Middleware', () => {
 
   it('should handle errors without message', () => {
     const error = {
-      name: 'GenericError'
+      name: 'GenericError',
     };
 
     errorMiddleware(error, req, res, next);
@@ -166,7 +166,7 @@ describe('Error Middleware', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Internal server error',
-      message: 'Something went wrong'
+      message: 'Something went wrong',
     });
   });
 
@@ -178,7 +178,7 @@ describe('Error Middleware', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Internal server error',
-      message: 'Standard error message'
+      message: 'Standard error message',
     });
   });
 });

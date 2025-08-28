@@ -21,7 +21,7 @@ jest.mock('../../src/config/logger.js', () => ({
   debug: jest.fn(),
 }));
 
-const authService = require('../../src/services/auth.service.js');
+import * as authService from '../../src/services/auth.service.js';
 
 describe('Auth Controller', () => {
   beforeEach(() => {
@@ -33,7 +33,7 @@ describe('Auth Controller', () => {
       name: 'John Doe',
       email: 'john@example.com',
       password: 'password123',
-      role: 'user'
+      role: 'user',
     };
 
     it('should create user successfully', async () => {
@@ -42,7 +42,7 @@ describe('Auth Controller', () => {
         name: 'John Doe',
         email: 'john@example.com',
         role: 'user',
-        created_at: new Date()
+        created_at: new Date(),
       };
 
       authService.createUser.mockResolvedValue(newUser);
@@ -54,7 +54,7 @@ describe('Auth Controller', () => {
       expect(response.status).toBe(201);
       expect(response.body).toEqual({
         message: 'User created successfully',
-        user: newUser
+        user: newUser,
       });
       expect(authService.createUser).toHaveBeenCalledWith(validSignupData);
     });
@@ -63,7 +63,7 @@ describe('Auth Controller', () => {
       const invalidData = {
         name: 'J',
         email: 'invalid-email',
-        password: '123'
+        password: '123',
       };
 
       const response = await request(app)
@@ -75,7 +75,9 @@ describe('Auth Controller', () => {
     });
 
     it('should return 400 when user already exists', async () => {
-      authService.createUser.mockRejectedValue(new Error('User with this email already exists'));
+      authService.createUser.mockRejectedValue(
+        new Error('User with this email already exists')
+      );
 
       const response = await request(app)
         .post('/api/auth/signup')
@@ -97,9 +99,7 @@ describe('Auth Controller', () => {
     });
 
     it('should require all mandatory fields', async () => {
-      const response = await request(app)
-        .post('/api/auth/signup')
-        .send({});
+      const response = await request(app).post('/api/auth/signup').send({});
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Validation failed');
@@ -108,14 +108,14 @@ describe('Auth Controller', () => {
     it('should trim and lowercase email', async () => {
       const dataWithSpaces = {
         ...validSignupData,
-        email: '  JOHN@EXAMPLE.COM  '
+        email: '  JOHN@EXAMPLE.COM  ',
       };
       const newUser = {
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
         role: 'user',
-        created_at: new Date()
+        created_at: new Date(),
       };
 
       authService.createUser.mockResolvedValue(newUser);
@@ -127,7 +127,7 @@ describe('Auth Controller', () => {
       expect(response.status).toBe(201);
       expect(authService.createUser).toHaveBeenCalledWith({
         ...validSignupData,
-        email: 'john@example.com'
+        email: 'john@example.com',
       });
     });
   });
@@ -135,7 +135,7 @@ describe('Auth Controller', () => {
   describe('POST /api/auth/signin', () => {
     const validSigninData = {
       email: 'john@example.com',
-      password: 'password123'
+      password: 'password123',
     };
 
     it('should sign in user successfully', async () => {
@@ -143,7 +143,7 @@ describe('Auth Controller', () => {
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
-        role: 'user'
+        role: 'user',
       };
       const token = 'jwt-token';
 
@@ -161,14 +161,16 @@ describe('Auth Controller', () => {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role
-        }
+          role: user.role,
+        },
       });
       expect(response.headers['set-cookie']).toBeDefined();
     });
 
     it('should return 400 for invalid credentials', async () => {
-      authService.authenticateUser.mockRejectedValue(new Error('Invalid credentials'));
+      authService.authenticateUser.mockRejectedValue(
+        new Error('Invalid credentials')
+      );
 
       const response = await request(app)
         .post('/api/auth/signin')
@@ -181,7 +183,7 @@ describe('Auth Controller', () => {
     it('should return 400 for invalid data format', async () => {
       const invalidData = {
         email: 'invalid-email',
-        password: ''
+        password: '',
       };
 
       const response = await request(app)
@@ -193,7 +195,9 @@ describe('Auth Controller', () => {
     });
 
     it('should handle server errors', async () => {
-      authService.authenticateUser.mockRejectedValue(new Error('Database error'));
+      authService.authenticateUser.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app)
         .post('/api/auth/signin')
@@ -204,9 +208,7 @@ describe('Auth Controller', () => {
     });
 
     it('should require email and password', async () => {
-      const response = await request(app)
-        .post('/api/auth/signin')
-        .send({});
+      const response = await request(app).post('/api/auth/signin').send({});
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Validation failed');
@@ -215,19 +217,17 @@ describe('Auth Controller', () => {
 
   describe('POST /api/auth/signout', () => {
     it('should sign out user successfully', async () => {
-      const response = await request(app)
-        .post('/api/auth/signout');
+      const response = await request(app).post('/api/auth/signout');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
-        message: 'Signed out successfully'
+        message: 'Signed out successfully',
       });
       expect(response.headers['set-cookie']).toBeDefined();
     });
 
     it('should clear token cookie', async () => {
-      const response = await request(app)
-        .post('/api/auth/signout');
+      const response = await request(app).post('/api/auth/signout');
 
       const setCookieHeader = response.headers['set-cookie'];
       expect(setCookieHeader).toBeDefined();

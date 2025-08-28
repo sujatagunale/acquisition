@@ -30,21 +30,23 @@ describe('Auth Service', () => {
     it('should hash password successfully', async () => {
       const password = 'testpassword';
       const hashedPassword = 'hashedpassword123';
-      
+
       bcrypt.hash.mockResolvedValue(hashedPassword);
-      
+
       const result = await authService.hashPassword(password);
-      
+
       expect(bcrypt.hash).toHaveBeenCalledWith(password, 12);
       expect(result).toBe(hashedPassword);
     });
 
     it('should throw error when bcrypt fails', async () => {
       const password = 'testpassword';
-      
+
       bcrypt.hash.mockRejectedValue(new Error('Bcrypt error'));
-      
-      await expect(authService.hashPassword(password)).rejects.toThrow('Password hashing failed');
+
+      await expect(authService.hashPassword(password)).rejects.toThrow(
+        'Password hashing failed'
+      );
     });
   });
 
@@ -52,11 +54,11 @@ describe('Auth Service', () => {
     it('should return true for matching passwords', async () => {
       const password = 'testpassword';
       const hash = 'hashedpassword123';
-      
+
       bcrypt.compare.mockResolvedValue(true);
-      
+
       const result = await authService.comparePassword(password, hash);
-      
+
       expect(bcrypt.compare).toHaveBeenCalledWith(password, hash);
       expect(result).toBe(true);
     });
@@ -64,11 +66,11 @@ describe('Auth Service', () => {
     it('should return false for non-matching passwords', async () => {
       const password = 'testpassword';
       const hash = 'hashedpassword123';
-      
+
       bcrypt.compare.mockResolvedValue(false);
-      
+
       const result = await authService.comparePassword(password, hash);
-      
+
       expect(bcrypt.compare).toHaveBeenCalledWith(password, hash);
       expect(result).toBe(false);
     });
@@ -76,10 +78,12 @@ describe('Auth Service', () => {
     it('should throw error when bcrypt fails', async () => {
       const password = 'testpassword';
       const hash = 'hashedpassword123';
-      
+
       bcrypt.compare.mockRejectedValue(new Error('Bcrypt error'));
-      
-      await expect(authService.comparePassword(password, hash)).rejects.toThrow('Password comparison failed');
+
+      await expect(authService.comparePassword(password, hash)).rejects.toThrow(
+        'Password comparison failed'
+      );
     });
   });
 
@@ -88,7 +92,7 @@ describe('Auth Service', () => {
       name: 'John Doe',
       email: 'john@example.com',
       password: 'password123',
-      role: 'user'
+      role: 'user',
     };
 
     it('should create user successfully', async () => {
@@ -98,23 +102,23 @@ describe('Auth Service', () => {
         name: 'John Doe',
         email: 'john@example.com',
         role: 'user',
-        created_at: new Date()
+        created_at: new Date(),
       };
 
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([]),
+          }),
+        }),
       });
 
       bcrypt.hash.mockResolvedValue(hashedPassword);
 
       db.insert.mockReturnValue({
         values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([newUser])
-        })
+          returning: jest.fn().mockResolvedValue([newUser]),
+        }),
       });
 
       const result = await authService.createUser(userData);
@@ -129,19 +133,21 @@ describe('Auth Service', () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([existingUser])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([existingUser]),
+          }),
+        }),
       });
 
-      await expect(authService.createUser(userData)).rejects.toThrow('User with this email already exists');
+      await expect(authService.createUser(userData)).rejects.toThrow(
+        'User with this email already exists'
+      );
     });
 
     it('should use default role when not provided', async () => {
       const userDataWithoutRole = {
         name: 'John Doe',
         email: 'john@example.com',
-        password: 'password123'
+        password: 'password123',
       };
       const hashedPassword = 'hashedpassword123';
       const newUser = {
@@ -149,23 +155,23 @@ describe('Auth Service', () => {
         name: 'John Doe',
         email: 'john@example.com',
         role: 'user',
-        created_at: new Date()
+        created_at: new Date(),
       };
 
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([]),
+          }),
+        }),
       });
 
       bcrypt.hash.mockResolvedValue(hashedPassword);
 
       const insertMock = {
         values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([newUser])
-        })
+          returning: jest.fn().mockResolvedValue([newUser]),
+        }),
       };
       db.insert.mockReturnValue(insertMock);
 
@@ -176,7 +182,7 @@ describe('Auth Service', () => {
         name: 'John Doe',
         email: 'john@example.com',
         password: hashedPassword,
-        role: 'user'
+        role: 'user',
       });
     });
 
@@ -184,12 +190,14 @@ describe('Auth Service', () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockRejectedValue(new Error('Database error'))
-          })
-        })
+            limit: jest.fn().mockRejectedValue(new Error('Database error')),
+          }),
+        }),
       });
 
-      await expect(authService.createUser(userData)).rejects.toThrow('Database error');
+      await expect(authService.createUser(userData)).rejects.toThrow(
+        'Database error'
+      );
     });
   });
 
@@ -201,16 +209,16 @@ describe('Auth Service', () => {
       name: 'John Doe',
       email: 'john@example.com',
       password: 'hashedpassword123',
-      role: 'user'
+      role: 'user',
     };
 
     it('should authenticate user successfully', async () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([user])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([user]),
+          }),
+        }),
       });
 
       bcrypt.compare.mockResolvedValue(true);
@@ -225,52 +233,60 @@ describe('Auth Service', () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([]),
+          }),
+        }),
       });
 
-      await expect(authService.authenticateUser(email, password)).rejects.toThrow('Invalid credentials');
+      await expect(
+        authService.authenticateUser(email, password)
+      ).rejects.toThrow('Invalid credentials');
     });
 
     it('should throw error if password is invalid', async () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([user])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([user]),
+          }),
+        }),
       });
 
       bcrypt.compare.mockResolvedValue(false);
 
-      await expect(authService.authenticateUser(email, password)).rejects.toThrow('Invalid credentials');
+      await expect(
+        authService.authenticateUser(email, password)
+      ).rejects.toThrow('Invalid credentials');
     });
 
     it('should handle database errors', async () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockRejectedValue(new Error('Database error'))
-          })
-        })
+            limit: jest.fn().mockRejectedValue(new Error('Database error')),
+          }),
+        }),
       });
 
-      await expect(authService.authenticateUser(email, password)).rejects.toThrow('Database error');
+      await expect(
+        authService.authenticateUser(email, password)
+      ).rejects.toThrow('Database error');
     });
 
     it('should handle bcrypt errors', async () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([user])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([user]),
+          }),
+        }),
       });
 
       bcrypt.compare.mockRejectedValue(new Error('Bcrypt error'));
 
-      await expect(authService.authenticateUser(email, password)).rejects.toThrow('Bcrypt error');
+      await expect(
+        authService.authenticateUser(email, password)
+      ).rejects.toThrow('Bcrypt error');
     });
   });
 });

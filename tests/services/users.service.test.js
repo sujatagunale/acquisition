@@ -18,7 +18,6 @@ jest.mock('../../src/config/logger.js', () => ({
   debug: jest.fn(),
 }));
 
-
 describe('Users Service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -33,7 +32,7 @@ describe('Users Service', () => {
           email: 'john@example.com',
           role: 'user',
           created_at: new Date(),
-          updated_at: new Date()
+          updated_at: new Date(),
         },
         {
           id: 2,
@@ -41,12 +40,12 @@ describe('Users Service', () => {
           email: 'jane@example.com',
           role: 'admin',
           created_at: new Date(),
-          updated_at: new Date()
-        }
+          updated_at: new Date(),
+        },
       ];
 
       db.select.mockReturnValue({
-        from: jest.fn().mockResolvedValue(users)
+        from: jest.fn().mockResolvedValue(users),
       });
 
       const result = await usersService.getAllUsers();
@@ -58,21 +57,23 @@ describe('Users Service', () => {
         email: expect.any(Object),
         role: expect.any(Object),
         created_at: expect.any(Object),
-        updated_at: expect.any(Object)
+        updated_at: expect.any(Object),
       });
     });
 
     it('should handle database errors', async () => {
       db.select.mockReturnValue({
-        from: jest.fn().mockRejectedValue(new Error('Database error'))
+        from: jest.fn().mockRejectedValue(new Error('Database error')),
       });
 
-      await expect(usersService.getAllUsers()).rejects.toThrow('Database error');
+      await expect(usersService.getAllUsers()).rejects.toThrow(
+        'Database error'
+      );
     });
 
     it('should return empty array when no users exist', async () => {
       db.select.mockReturnValue({
-        from: jest.fn().mockResolvedValue([])
+        from: jest.fn().mockResolvedValue([]),
       });
 
       const result = await usersService.getAllUsers();
@@ -89,16 +90,16 @@ describe('Users Service', () => {
       email: 'john@example.com',
       role: 'user',
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     it('should return user by ID successfully', async () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([user])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([user]),
+          }),
+        }),
       });
 
       const result = await usersService.getUserById(userId);
@@ -110,9 +111,9 @@ describe('Users Service', () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([])
-          })
-        })
+            limit: jest.fn().mockResolvedValue([]),
+          }),
+        }),
       });
 
       const result = await usersService.getUserById(userId);
@@ -124,12 +125,14 @@ describe('Users Service', () => {
       db.select.mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockRejectedValue(new Error('Database error'))
-          })
-        })
+            limit: jest.fn().mockRejectedValue(new Error('Database error')),
+          }),
+        }),
       });
 
-      await expect(usersService.getUserById(userId)).rejects.toThrow('Database error');
+      await expect(usersService.getUserById(userId)).rejects.toThrow(
+        'Database error'
+      );
     });
   });
 
@@ -137,7 +140,7 @@ describe('Users Service', () => {
     const userId = 1;
     const updates = {
       name: 'John Updated',
-      email: 'john.updated@example.com'
+      email: 'john.updated@example.com',
     };
     const updatedUser = {
       id: 1,
@@ -145,16 +148,16 @@ describe('Users Service', () => {
       email: 'john.updated@example.com',
       role: 'user',
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     it('should update user successfully', async () => {
       db.update.mockReturnValue({
         set: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockResolvedValue([updatedUser])
-          })
-        })
+            returning: jest.fn().mockResolvedValue([updatedUser]),
+          }),
+        }),
       });
 
       const result = await usersService.updateUser(userId, updates);
@@ -166,19 +169,19 @@ describe('Users Service', () => {
     it('should include updated_at timestamp in update data', async () => {
       const setMock = jest.fn().mockReturnValue({
         where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([updatedUser])
-        })
+          returning: jest.fn().mockResolvedValue([updatedUser]),
+        }),
       });
 
       db.update.mockReturnValue({
-        set: setMock
+        set: setMock,
       });
 
       await usersService.updateUser(userId, updates);
 
       expect(setMock).toHaveBeenCalledWith({
         ...updates,
-        updated_at: expect.any(Date)
+        updated_at: expect.any(Date),
       });
     });
 
@@ -186,9 +189,9 @@ describe('Users Service', () => {
       db.update.mockReturnValue({
         set: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockResolvedValue([])
-          })
-        })
+            returning: jest.fn().mockResolvedValue([]),
+          }),
+        }),
       });
 
       const result = await usersService.updateUser(userId, updates);
@@ -200,23 +203,25 @@ describe('Users Service', () => {
       db.update.mockReturnValue({
         set: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockRejectedValue(new Error('Database error'))
-          })
-        })
+            returning: jest.fn().mockRejectedValue(new Error('Database error')),
+          }),
+        }),
       });
 
-      await expect(usersService.updateUser(userId, updates)).rejects.toThrow('Database error');
+      await expect(usersService.updateUser(userId, updates)).rejects.toThrow(
+        'Database error'
+      );
     });
 
     it('should handle empty updates object', async () => {
       const emptyUpdates = {};
-      
+
       db.update.mockReturnValue({
         set: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockResolvedValue([updatedUser])
-          })
-        })
+            returning: jest.fn().mockResolvedValue([updatedUser]),
+          }),
+        }),
       });
 
       const result = await usersService.updateUser(userId, emptyUpdates);
@@ -229,14 +234,14 @@ describe('Users Service', () => {
     const userId = 1;
     const deletedUser = {
       id: 1,
-      email: 'john@example.com'
+      email: 'john@example.com',
     };
 
     it('should delete user successfully', async () => {
       db.delete.mockReturnValue({
         where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([deletedUser])
-        })
+          returning: jest.fn().mockResolvedValue([deletedUser]),
+        }),
       });
 
       const result = await usersService.deleteUser(userId);
@@ -248,8 +253,8 @@ describe('Users Service', () => {
     it('should return null when user not found', async () => {
       db.delete.mockReturnValue({
         where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([])
-        })
+          returning: jest.fn().mockResolvedValue([]),
+        }),
       });
 
       const result = await usersService.deleteUser(userId);
@@ -260,11 +265,13 @@ describe('Users Service', () => {
     it('should handle database errors', async () => {
       db.delete.mockReturnValue({
         where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockRejectedValue(new Error('Database error'))
-        })
+          returning: jest.fn().mockRejectedValue(new Error('Database error')),
+        }),
       });
 
-      await expect(usersService.deleteUser(userId)).rejects.toThrow('Database error');
+      await expect(usersService.deleteUser(userId)).rejects.toThrow(
+        'Database error'
+      );
     });
 
     it('should return only id and email fields', async () => {
@@ -274,23 +281,23 @@ describe('Users Service', () => {
         email: 'john@example.com',
         role: 'user',
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       };
 
       db.delete.mockReturnValue({
         where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([fullDeletedUser])
-        })
+          returning: jest.fn().mockResolvedValue([fullDeletedUser]),
+        }),
       });
 
       const result = await usersService.deleteUser(userId);
 
       expect(result).toEqual(fullDeletedUser);
-      
+
       const returningMock = db.delete().where().returning;
       expect(returningMock).toHaveBeenCalledWith({
         id: expect.any(Object),
-        email: expect.any(Object)
+        email: expect.any(Object),
       });
     });
   });

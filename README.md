@@ -15,11 +15,13 @@ A Node.js API application built with Express.js, Neon DB PostgreSQL, Drizzle ORM
 ## Setup
 
 1. Copy environment variables:
+
    ```bash
    cp .env.example .env
    ```
 
 2. Fill in your database URL in `.env`:
+
    ```
    DATABASE_URL=postgresql://username:password@hostname:port/database_name
    ```
@@ -55,6 +57,7 @@ The project is configured to use absolute imports with the following aliases:
 - `@utils/` - `./src/utils/`
 
 Example usage:
+
 ```javascript
 const logger = require('@config/logger');
 const { users } = require('@models/users');
@@ -92,6 +95,7 @@ tests/               # Test files
 ## Development
 
 The application uses:
+
 - ESLint for code linting with Prettier integration
 - Winston for structured logging
 - Jest for testing with SuperTest for HTTP assertions

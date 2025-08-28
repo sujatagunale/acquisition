@@ -1,4 +1,8 @@
-import { createListingSchema, updateListingSchema, listingIdSchema } from '../../src/validations/listings.validation.js';
+import {
+  createListingSchema,
+  updateListingSchema,
+  listingIdSchema,
+} from '../../src/validations/listings.validation.js';
 
 describe('Listings Validations', () => {
   describe('createListingSchema', () => {
@@ -10,7 +14,7 @@ describe('Listings Validations', () => {
       asking_price: 50000,
       revenue_monthly: 5000,
       profit_monthly: 3000,
-      status: 'listed'
+      status: 'listed',
     };
 
     it('should validate correct listing data', () => {
@@ -54,7 +58,9 @@ describe('Listings Validations', () => {
         const data = { title: 'a'.repeat(256) };
         const result = createListingSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Title must not exceed 255 characters');
+        expect(result.error.issues[0].message).toBe(
+          'Title must not exceed 255 characters'
+        );
       });
 
       it('should accept title with exactly 255 characters', () => {
@@ -107,10 +113,17 @@ describe('Listings Validations', () => {
       });
 
       it('should accept array of strings for tech_stack', () => {
-        const data = { title: 'Test', tech_stack: ['React', 'Node.js', 'PostgreSQL'] };
+        const data = {
+          title: 'Test',
+          tech_stack: ['React', 'Node.js', 'PostgreSQL'],
+        };
         const result = createListingSchema.safeParse(data);
         expect(result.success).toBe(true);
-        expect(result.data.tech_stack).toEqual(['React', 'Node.js', 'PostgreSQL']);
+        expect(result.data.tech_stack).toEqual([
+          'React',
+          'Node.js',
+          'PostgreSQL',
+        ]);
       });
 
       it('should accept empty array for tech_stack', () => {
@@ -212,7 +225,7 @@ describe('Listings Validations', () => {
         asking_price: 75000,
         revenue_monthly: 7500,
         profit_monthly: 4500,
-        status: 'listed'
+        status: 'listed',
       };
       const result = updateListingSchema.safeParse(data);
       expect(result.success).toBe(true);
@@ -236,7 +249,9 @@ describe('Listings Validations', () => {
     it('should reject empty update data', () => {
       const result = updateListingSchema.safeParse({});
       expect(result.success).toBe(false);
-      expect(result.error.issues[0].message).toBe('At least one field must be provided for update');
+      expect(result.error.issues[0].message).toBe(
+        'At least one field must be provided for update'
+      );
     });
 
     describe('title validation in updates', () => {
@@ -251,14 +266,16 @@ describe('Listings Validations', () => {
         const data = { title: 'a'.repeat(256) };
         const result = updateListingSchema.safeParse(data);
         expect(result.success).toBe(false);
-        expect(result.error.issues[0].message).toBe('Title must not exceed 255 characters');
+        expect(result.error.issues[0].message).toBe(
+          'Title must not exceed 255 characters'
+        );
       });
     });
 
     describe('status validation in updates', () => {
       it('should accept all valid statuses in updates', () => {
         const validStatuses = ['draft', 'listed', 'sold', 'withdrawn'];
-        
+
         validStatuses.forEach(status => {
           const data = { status };
           const result = updateListingSchema.safeParse(data);
