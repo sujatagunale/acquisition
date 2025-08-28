@@ -1,11 +1,9 @@
-import {
-  createUser,
-  authenticateUser,
-  generateToken,
-} from '#services/auth.service.js';
-import { signupSchema, signinSchema } from '#validations/auth.validation.js';
 import logger from '#config/logger.js';
+import { jwttoken } from '#utils/jwt.js';
+import { cookies } from '#utils/cookies.js';
 import { formatValidationError } from '#utils/format.js';
+import * as authService from '#services/auth.service.js';
+import { signupSchema, signinSchema } from '#validations/auth.validation.js';
 
 export const signup = async (req, res, next) => {
   try {
@@ -20,25 +18,20 @@ export const signup = async (req, res, next) => {
 
     const { name, email, password, role } = validationResult.data;
 
-    const user = await createUser({
+    const user = await authService.createUser({
       name,
       email,
       password,
       role,
     });
 
-    const token = generateToken({
+    const token = jwttoken.sign({
       id: user.id,
       email: user.email,
       role: user.role,
     });
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000,
-    });
+    cookies.set(res, 'token', token);
 
     logger.info(`User registered successfully: ${user.email}`);
     res.status(201).json({
@@ -75,20 +68,15 @@ export const signin = async (req, res, next) => {
 
     const { email, password } = validationResult.data;
 
-    const user = await authenticateUser(email, password);
+    const user = await authService.authenticateUser(email, password);
 
-    const token = generateToken({
+    const token = jwttoken.sign({
       id: user.id,
       email: user.email,
       role: user.role,
     });
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000,
-    });
+    cookies.set(res, 'token', token);
 
     logger.info(`User signed in successfully: ${user.email}`);
     res.json({
@@ -114,11 +102,7 @@ export const signin = async (req, res, next) => {
 
 export const signout = async (req, res, next) => {
   try {
-    res.clearCookie('token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-    });
+    cookies.remove(res, 'token');
 
     logger.info('User signed out successfully');
     res.json({ message: 'Signed out successfully' });

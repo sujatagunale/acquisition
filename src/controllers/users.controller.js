@@ -1,22 +1,16 @@
 import {
-  getAllUsers,
-  getUserById,
-  updateUser,
-  deleteUser,
-} from '#services/users.service.js';
-import {
   updateUserSchema,
   userIdSchema,
 } from '#validations/users.validation.js';
 import logger from '#config/logger.js';
+import * as usersService from '#services/users.service.js';
 import { formatValidationError } from '#utils/format.js';
 
-// 🛠️ Get all users
-export const getAllUsersController = async (req, res, next) => {
+export const getAllUsers = async (req, res, next) => {
   try {
     logger.info('Fetching all users');
 
-    const allUsers = await getAllUsers();
+    const allUsers = await usersService.getAllUsers();
 
     res.json({
       message: 'Users retrieved successfully',
@@ -29,8 +23,7 @@ export const getAllUsersController = async (req, res, next) => {
   }
 };
 
-// 🛠️ Get user by ID
-export const getUserByIdController = async (req, res, next) => {
+export const getUserById = async (req, res, next) => {
   try {
     const paramValidation = userIdSchema.safeParse({
       id: parseInt(req.params.id, 10),
@@ -50,7 +43,7 @@ export const getUserByIdController = async (req, res, next) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const user = await getUserById(userId);
+    const user = await usersService.getUserById(userId);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -67,8 +60,7 @@ export const getUserByIdController = async (req, res, next) => {
   }
 };
 
-// 🛠️ Update user
-export const updateUserController = async (req, res, next) => {
+export const updateUser = async (req, res, next) => {
   try {
     const paramValidation = userIdSchema.safeParse({
       id: parseInt(req.params.id, 10),
@@ -105,7 +97,10 @@ export const updateUserController = async (req, res, next) => {
         .json({ error: 'Only admins can change user roles' });
     }
 
-    const updatedUser = await updateUser(userId, bodyValidation.data);
+    const updatedUser = await usersService.updateUser(
+      userId,
+      bodyValidation.data
+    );
 
     if (!updatedUser) {
       return res.status(404).json({ error: 'User not found' });
@@ -127,8 +122,7 @@ export const updateUserController = async (req, res, next) => {
   }
 };
 
-// 🛠️ Delete user
-export const deleteUserController = async (req, res, next) => {
+export const deleteUser = async (req, res, next) => {
   try {
     const paramValidation = userIdSchema.safeParse({
       id: parseInt(req.params.id, 10),
@@ -148,7 +142,7 @@ export const deleteUserController = async (req, res, next) => {
       return res.status(400).json({ error: 'Cannot delete your own account' });
     }
 
-    const deletedUser = await deleteUser(userId);
+    const deletedUser = await usersService.deleteUser(userId);
 
     if (!deletedUser) {
       return res.status(404).json({ error: 'User not found' });

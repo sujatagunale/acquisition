@@ -1,14 +1,10 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { db } from '#config/database.js';
 import { users } from '#models/users.model.js';
 import { eq } from 'drizzle-orm';
 import logger from '#config/logger.js';
 
 const SALT_ROUNDS = 12;
-const JWT_SECRET =
-  process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_EXPIRES_IN = '15m';
 
 export async function hashPassword(password) {
   try {
@@ -25,24 +21,6 @@ export async function comparePassword(password, hash) {
   } catch (error) {
     logger.error('Error comparing password:', error);
     throw new Error('Password comparison failed');
-  }
-}
-
-export function generateToken(payload) {
-  try {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-  } catch (error) {
-    logger.error('Error generating JWT token:', error);
-    throw new Error('Token generation failed');
-  }
-}
-
-export function verifyToken(token) {
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    logger.error('Error verifying JWT token:', error);
-    throw new Error('Token verification failed');
   }
 }
 
@@ -65,7 +43,7 @@ export async function createUser({ name, email, password, role = 'user' }) {
       .values({
         name,
         email,
-        password_hash,
+        password: password_hash,
         role,
       })
       .returning({
@@ -96,40 +74,16 @@ export async function authenticateUser(email, password) {
       throw new Error('Invalid credentials');
     }
 
-    const isValidPassword = await comparePassword(password, user.password_hash);
+    const isValidPassword = await comparePassword(password, user.password);
 
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
     }
 
-    // eslint-disable-next-line no-unused-vars
-    const { password_hash, ...userWithoutPassword } = user;
     logger.info(`User authenticated successfully: ${email}`);
-    return userWithoutPassword;
+    return user;
   } catch (error) {
     logger.error('Error authenticating user:', error);
-    throw error;
-  }
-}
-
-export async function getUserById(id) {
-  try {
-    const [user] = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-        created_at: users.created_at,
-        updated_at: users.updated_at,
-      })
-      .from(users)
-      .where(eq(users.id, id))
-      .limit(1);
-
-    return user || null;
-  } catch (error) {
-    logger.error('Error getting user by ID:', error);
     throw error;
   }
 }
