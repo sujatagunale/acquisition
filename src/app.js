@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import logger from '#config/logger.js';
 import userRoutes from '#routes/users.routes.js';
 import authRoutes from '#routes/auth.routes.js';
+import listingsRoutes from '#routes/listings.routes.js';
+import dealsRoutes from '#routes/deals.routes.js';
 import errorMiddleware from '#middlewares/error.middleware.js';
 
 const app = express();
@@ -38,6 +40,8 @@ app.get('/api', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/listings', listingsRoutes);
+app.use('/api/deals', dealsRoutes);
 
 app.use(errorMiddleware);
 
