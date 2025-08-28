@@ -39,10 +39,6 @@ export const getUserById = async (req, res, next) => {
 
     const { id: userId } = paramValidation.data;
 
-    if (req.user.role !== 'admin' && req.user.id !== userId) {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
     const user = await usersService.getUserById(userId);
 
     if (!user) {
