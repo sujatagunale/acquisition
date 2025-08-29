@@ -1,5 +1,8 @@
 import express from 'express';
-import { authenticateToken, requireAdmin } from '#middlewares/auth.middleware.js';
+import {
+  authenticateToken,
+  requireAdmin,
+} from '#middlewares/auth.middleware.js';
 import {
   getAllDeals,
   getDealById,
@@ -9,8 +12,16 @@ import {
   acceptDeal,
   getDealsByListing,
 } from '#controllers/deals.controller.js';
+import {
+  apiRateLimit,
+  sensitiveDataShield,
+  handleArcjetResponse,
+} from '#middlewares/arcjet.middleware.js';
 
 const router = express.Router();
+
+router.use(handleArcjetResponse(apiRateLimit));
+router.use(handleArcjetResponse(sensitiveDataShield));
 
 router.get('/', authenticateToken, requireAdmin, getAllDeals);
 router.get('/:id', authenticateToken, getDealById);

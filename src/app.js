@@ -9,6 +9,10 @@ import authRoutes from '#routes/auth.routes.js';
 import listingsRoutes from '#routes/listings.routes.js';
 import dealsRoutes from '#routes/deals.routes.js';
 import errorMiddleware from '#middlewares/error.middleware.js';
+import {
+  apiRateLimit,
+  handleArcjetResponse,
+} from '#middlewares/arcjet.middleware.js';
 
 const app = express();
 
@@ -17,6 +21,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.use('/api', handleArcjetResponse(apiRateLimit));
 
 app.use(
   morgan('combined', {
