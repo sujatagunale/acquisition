@@ -1,15 +1,15 @@
 import express from 'express';
 import { signup, signin, signout } from '#controllers/auth.controller.js';
-import { authProtection, advancedProtection } from '#middlewares/arcjet.middleware.js';
+import { authProtection, emailValidation } from '#middlewares/arcjet.middleware.js';
 
 const router = express.Router();
 
-const authMiddleware = authProtection 
-  ? advancedProtection() 
-  : (req, res, next) => next();
+router.use(authProtection);
 
-router.post('/signup', authMiddleware, signup);
-router.post('/signin', authMiddleware, signin);
+router.use(['/signup', '/signin'], emailValidation);
+
+router.post('/signup', signup);
+router.post('/signin', signin);
 router.post('/signout', signout);
 
 export default router;

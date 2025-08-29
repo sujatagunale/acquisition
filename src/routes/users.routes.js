@@ -11,12 +11,12 @@ import {
 } from '#controllers/users.controller.js';
 import { 
   adaptiveRateLimit,
-  basicProtection,
+  baseProtection,
 } from '#middlewares/arcjet.middleware.js';
 
 const router = express.Router();
 
-router.use(basicProtection);
+router.use(baseProtection);
 router.use(adaptiveRateLimit);
 
 router.get('/', authenticateToken, requireAdmin, getAllUsers);

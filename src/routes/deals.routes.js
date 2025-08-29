@@ -14,16 +14,11 @@ import {
 } from '#controllers/deals.controller.js';
 import {
   financialProtection,
-  dealProtection,
 } from '#middlewares/arcjet.middleware.js';
 
 const router = express.Router();
 
-const dealMiddleware = dealProtection 
-  ? financialProtection 
-  : (req, res, next) => next();
-
-router.use(dealMiddleware);
+router.use(financialProtection);
 
 router.get('/', authenticateToken, requireAdmin, getAllDeals);
 router.get('/:id', authenticateToken, getDealById);

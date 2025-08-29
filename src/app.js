@@ -10,7 +10,7 @@ import listingsRoutes from '#routes/listings.routes.js';
 import dealsRoutes from '#routes/deals.routes.js';
 import errorMiddleware from '#middlewares/error.middleware.js';
 import {
-  basicProtection,
+  baseProtection,
 } from '#middlewares/arcjet.middleware.js';
 
 const app = express();
@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use('/api', basicProtection);
+app.use('/api', baseProtection);
 
 app.use(
   morgan('combined', {
