@@ -16,8 +16,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --runInBand --detectOpenHandles --ci",
+    "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch --runInBand",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

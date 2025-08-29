@@ -31,7 +31,7 @@ jobs:
         run: npx drizzle-kit push
 
       - name: Run tests
-        run: npm test
+        run: npm test -- --forceExit
 
       - name: Upload coverage
         if: always()
