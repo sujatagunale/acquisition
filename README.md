@@ -97,3 +97,32 @@ The application uses:
 - Jest for testing with SuperTest for HTTP assertions
 - Drizzle ORM for database operations
 - Module-alias for absolute imports
+
+## Running with Docker (Development)
+
+1. Copy envs:
+   - cp .env.example .env
+   - Set DATABASE_URL to your Neon connection string in .env
+2. Start the app:
+   - docker compose -f docker-compose.dev.yml up --build
+3. Open:
+   - http://localhost:3000/health
+
+## Production Image
+
+Build:
+- docker build -f Dockerfile.prod -t yourrepo/acquisition:latest .
+
+Run:
+- docker run -e DATABASE_URL="postgresql://user:pass@host:5432/db" -p 3000:3000 yourrepo/acquisition:latest
+
+Health:
+- GET /health should return 200 OK.
+
+## CI/CD
+
+- CI runs on push/PR to main: installs deps, lints, tests, uploads coverage.
+- Release builds multi-arch Docker images on tags (vX.Y.Z) and pushes to Docker Hub with tags: version, latest, and short SHA.
+- Configure GitHub Actions:
+  - Secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
+  - Variables: DOCKERHUB_REPO (e.g., sujatagunale/acquisition)

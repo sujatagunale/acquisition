@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+yarn.lock
+.pnpm-debug.log
+.git
+.gitignore
+.DS_Store
+coverage
+logs
+drizzle
+.env
+.env.*
