@@ -9,16 +9,15 @@ import {
   getUserById,
   updateUser,
 } from '#controllers/users.controller.js';
-import {
+import { 
   adaptiveRateLimit,
-  sensitiveDataShield,
-  handleArcjetResponse,
+  basicProtection,
 } from '#middlewares/arcjet.middleware.js';
 
 const router = express.Router();
 
+router.use(basicProtection);
 router.use(adaptiveRateLimit);
-router.use(handleArcjetResponse(sensitiveDataShield));
 
 router.get('/', authenticateToken, requireAdmin, getAllUsers);
 router.get('/:id', authenticateToken, getUserById);

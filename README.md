@@ -92,16 +92,45 @@ tests/               # Test files
 - `LOG_LEVEL` - Logging level (default: info)
 - `DATABASE_URL` - PostgreSQL connection string
 - `ARCJET_KEY` - Arcjet API key for security features
+- `ARCJET_ENV` - Arcjet environment (development/production)
+- `ARCJET_ALLOWED_COUNTRIES` - Optional comma-separated list of allowed countries
 
-## Security Features
+## Advanced Security Features
 
-The API includes comprehensive security features powered by Arcjet:
+The API includes comprehensive security features powered by Arcjet following industry best practices:
 
-- **Bot Protection** - Prevents automated attacks on authentication endpoints
-- **Rate Limiting** - Adaptive rate limiting based on user roles (admin: 200/min, user: 60/min, anonymous: 20/min)
-- **Shield Protection** - Blocks suspicious requests and protects sensitive data
-- **Email Validation** - Validates email addresses during signup and blocks disposable emails
-- **Sensitive Information Detection** - Prevents exposure of sensitive data in requests
+### Core Protection
+- **Single Instance Pattern** - Uses Arcjet's recommended single instance with rules array
+- **Shield Protection** - Blocks SQL injection, XSS, and other common attacks
+- **Bot Protection** - Prevents automated attacks with search engine allowlist
+- **Rate Limiting** - Adaptive limits based on user roles and context
+
+### Advanced Features
+- **IP Geolocation Analysis** - Country-based access control and suspicious location detection
+- **VPN/Proxy Detection** - Blocks VPNs and proxies with Apple Private Relay exception
+- **Hosting Provider Detection** - Prevents requests from hosting providers (potential proxies)
+- **Email Validation** - Blocks disposable, invalid, and free email addresses
+- **Financial Transaction Protection** - Enhanced security for deal operations
+
+### Rate Limiting Tiers
+- **Admin users**: 200 requests/minute
+- **Regular users**: 60 requests/minute  
+- **Anonymous users**: 20 requests/minute
+- **Authentication endpoints**: 5 attempts/10 minutes
+- **Deal operations**: 20 operations/hour
+
+### Geographic Restrictions
+- Configurable country-based access control
+- Default restrictions for financial operations (US, CA, GB, AU)
+- Suspicious location detection and logging
+
+### Implementation Details
+- Follows Arcjet's official blueprint patterns
+- Single instance pattern with rules array for optimal performance
+- Advanced IP analysis with comprehensive decision handling
+- Enhanced characteristics usage (userId, userRole, custom tracking)
+- "Fail open" design for resilience and availability
+- Environment-specific configuration and graceful test handling
 
 ## Development
 

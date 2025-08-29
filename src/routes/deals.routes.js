@@ -13,15 +13,17 @@ import {
   getDealsByListing,
 } from '#controllers/deals.controller.js';
 import {
-  apiRateLimit,
-  sensitiveDataShield,
-  handleArcjetResponse,
+  financialProtection,
+  dealProtection,
 } from '#middlewares/arcjet.middleware.js';
 
 const router = express.Router();
 
-router.use(handleArcjetResponse(apiRateLimit));
-router.use(handleArcjetResponse(sensitiveDataShield));
+const dealMiddleware = dealProtection 
+  ? financialProtection 
+  : (req, res, next) => next();
+
+router.use(dealMiddleware);
 
 router.get('/', authenticateToken, requireAdmin, getAllDeals);
 router.get('/:id', authenticateToken, getDealById);
