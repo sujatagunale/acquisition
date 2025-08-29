@@ -8,8 +8,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=deps /app/node_modules /app/node_modules
 COPY . .
-RUN addgroup -S nodegrp && adduser -S nodeusr -G nodegrp && chown -R nodeusr:nodegrp /app
+RUN apk add --no-cache curl && addgroup -S nodegrp && adduser -S nodeusr -G nodegrp && chown -R nodeusr:nodegrp /app
 USER nodeusr
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 CMD wget -qO- http://127.0.0.1:3000/health || exit 1
-CMD [ "sh", "-c", "npm run db:migrate && npm start" ]
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 CMD curl -fsS http://127.0.0.1:3000/health || exit 1
+CMD [ "sh", "-c", "npm run db:push && npm start" ]

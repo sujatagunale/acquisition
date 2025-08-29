@@ -121,15 +121,21 @@ Health:
 
 ## CI/CD
 
-- CI runs on push/PR to main: installs deps, lints, applies DB schema with drizzle-kit push, tests, uploads coverage.
-- Docker publish:
-  - On merges to main: pushes multi-arch images with tags latest and short SHA.
-  - On version tags (vX.Y.Z): pushes vX.Y.Z, latest, and short SHA.
+- CI - Lint and Test (push/PR to main)
+  - Jobs:
+    - Lint: install deps, run ESLint
+    - Test: validate DATABASE_URL secret, apply DB schema via drizzle-kit push, run Jest, upload coverage
+- CD - Build and Push Docker Image (push to main and tags vX.Y.Z)
+  - Builds multi-arch (amd64, arm64) from Dockerfile.prod
+  - Tags:
+    - On main: latest and short SHA
+    - On vX.Y.Z tags: vX.Y.Z, latest, and short SHA
 - Configure GitHub Actions:
   - Secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, DATABASE_URL
   - Variables: DOCKERHUB_REPO (e.g., sujatagunale/acquisition)
 
 ### Database schema (Drizzle)
-- If migrations are not committed, use drift-based apply:
+- Migrations are not committed; drift-based apply is used:
   - Local: DATABASE_URL="postgres://..." npm run db:push
-  - CI: uses drizzle-kit push automatically before tests
+  - CI: drizzle-kit push runs before tests
+  - Containers: both Dockerfile and Dockerfile.prod run db:push on startup
