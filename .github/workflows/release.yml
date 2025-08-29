@@ -2,6 +2,7 @@ name: Release Docker Image
 
 on:
   push:
+    branches: [ "main" ]
     tags:
       - "v*.*.*"
 
@@ -16,12 +17,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract version from tag
-        id: version
+      - name: Determine tags
+        id: meta
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          echo "tag=${TAG}" >> $GITHUB_OUTPUT
-          echo "sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          REF="${GITHUB_REF}"
+          SHA="${GITHUB_SHA::7}"
+          if [[ "$REF" == refs/tags/v* ]]; then
+            TAG="${REF#refs/tags/}"
+            echo "tags=${{ env.DOCKERHUB_REPO }}:${TAG},${{ env.DOCKERHUB_REPO }}:latest,${{ env.DOCKERHUB_REPO }}:${SHA}" >> $GITHUB_OUTPUT
+            echo "version=${TAG}" >> $GITHUB_OUTPUT
+          else
+            echo "tags=${{ env.DOCKERHUB_REPO }}:latest,${{ env.DOCKERHUB_REPO }}:${SHA}" >> $GITHUB_OUTPUT
+            echo "version=" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -42,11 +50,8 @@ jobs:
           file: Dockerfile.prod
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: |
-            ${{ env.DOCKERHUB_REPO }}:${{ steps.version.outputs.tag }}
-            ${{ env.DOCKERHUB_REPO }}:latest
-            ${{ env.DOCKERHUB_REPO }}:${{ steps.version.outputs.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.version=${{ steps.version.outputs.tag }}
+            org.opencontainers.image.version=${{ steps.meta.outputs.version }}

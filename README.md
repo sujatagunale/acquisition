@@ -122,7 +122,9 @@ Health:
 ## CI/CD
 
 - CI runs on push/PR to main: installs deps, lints, tests, uploads coverage.
-- Release builds multi-arch Docker images on tags (vX.Y.Z) and pushes to Docker Hub with tags: version, latest, and short SHA.
+- Docker publish:
+  - On merges to main: pushes multi-arch images with tags latest and short SHA.
+  - On version tags (vX.Y.Z): pushes vX.Y.Z, latest, and short SHA.
 - Configure GitHub Actions:
-  - Secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
+  - Secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, DATABASE_URL
   - Variables: DOCKERHUB_REPO (e.g., sujatagunale/acquisition)
