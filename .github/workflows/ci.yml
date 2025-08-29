@@ -27,6 +27,14 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Check DATABASE_URL present
+        run: |
+          if [ -z "${DATABASE_URL}" ]; then
+            echo "DATABASE_URL is not set" >&2
+            exit 1
+          fi
+          echo "DATABASE_URL is set"
+
       - name: Apply DB schema (drift-based)
         run: npx drizzle-kit push
 
