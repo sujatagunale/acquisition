@@ -121,10 +121,15 @@ Health:
 
 ## CI/CD
 
-- CI runs on push/PR to main: installs deps, lints, tests, uploads coverage.
+- CI runs on push/PR to main: installs deps, lints, applies DB schema with drizzle-kit push, tests, uploads coverage.
 - Docker publish:
   - On merges to main: pushes multi-arch images with tags latest and short SHA.
   - On version tags (vX.Y.Z): pushes vX.Y.Z, latest, and short SHA.
 - Configure GitHub Actions:
   - Secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, DATABASE_URL
   - Variables: DOCKERHUB_REPO (e.g., sujatagunale/acquisition)
+
+### Database schema (Drizzle)
+- If migrations are not committed, use drift-based apply:
+  - Local: DATABASE_URL="postgres://..." npm run db:push
+  - CI: uses drizzle-kit push automatically before tests

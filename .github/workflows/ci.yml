@@ -27,8 +27,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Run DB migrations
-        run: npm run db:migrate
+      - name: Apply DB schema (drift-based)
+        run: npx drizzle-kit push
 
       - name: Run tests
         run: npm test
