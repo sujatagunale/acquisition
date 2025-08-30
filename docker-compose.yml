@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # Neon Local Proxy for development
+  # Creates ephemeral database branches automatically
+  neon-local:
+    image: neondatabase/neon_local:latest
+    container_name: acquisition-neon-local
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env.development
+    volumes:
+      # Optional: Persist branch metadata per Git branch
+      - ./.neon_local/:/tmp/.neon_local
+      - ./.git/HEAD:/tmp/.git/HEAD:ro
+    networks:
+      - acquisition-network
+    restart: unless-stopped
+
+  # Your Node.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: acquisition-app
+    env_file:
+      - .env.development
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for hot reload in development
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - neon-local
+    networks:
+      - acquisition-network
+    restart: unless-stopped
+
+networks:
+  acquisition-network:
+    driver: bridge

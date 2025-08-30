@@ -64,4 +64,9 @@ build/
 *.db
 
 # Drizzle
-drizzle/
+drizzle/.neon_local/
+
+
+# env
+.env.development
+.env.production
