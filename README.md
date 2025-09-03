@@ -1,5 +1,130 @@
 # Acquisition API
 
+This is a Node.js Express API for managing real estate listings and deals. It includes authentication, user management, listings, and deals endpoints.
+
+## Features
+
+- Authentication (JWT-based)
+- User management
+- Listings management
+- Deals management
+- Health check endpoint
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18+)
+- npm or yarn
+- A PostgreSQL database (Neon or any compatible service)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/sujatagunale/acquisition.git
+   cd acquisition
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Copy `.env.example` to `.env` and set the `DATABASE_URL`:
+   ```bash
+   cp .env.example .env
+   ```
+
+### Running the Server
+
+```bash
+npm start
+```
+
+The API will be available at `http://localhost:3000`
+
+### Health Check
+
+```bash
+curl http://localhost:3000/health
+```
+
+## Environment Variables
+
+- `DATABASE_URL` - PostgreSQL connection string (Neon or local)
+- `JWT_SECRET` - Secret key for JWT token signing
+- `NODE_ENV` - Environment (`development`, `production`, `test`)
+- `LOG_LEVEL` - Log level (`info`, `error`, etc.)
+
+## API Endpoints
+
+- `GET /health` - Health check
+- `GET /api` - API status
+- `POST /api/auth/signup` - Register new user
+- `POST /api/auth/signin` - Sign in
+- `POST /api/auth/signout` - Sign out
+- `GET /api/users` - Get all users (admin only)
+- `GET /api/users/:id` - Get user by ID
+- `PUT /api/users/:id` - Update user
+- `DELETE /api/users/:id` - Delete user (admin only)
+- `GET /api/listings` - Get all listings
+- `GET /api/listings/my` - Get current user's listings
+- `GET /api/listings/:id` - Get listing by ID
+- `POST /api/listings` - Create listing (auth required)
+- `PUT /api/listings/:id` - Update listing (owner/admin)
+- `DELETE /api/listings/:id` - Delete listing (owner/admin)
+- `GET /api/deals` - Get all deals (admin only)
+- `GET /api/deals/:id` - Get deal by ID
+- `POST /api/deals` - Create deal (auth required)
+- `PUT /api/deals/:id` - Update deal (owner/admin)
+- `DELETE /api/deals/:id` - Delete deal (owner/admin)
+- `POST /api/deals/:id/accept` - Accept a deal (auth required)
+
+## Security: Arcjet Integration
+
+This project uses a single shared Arcjet instance for security protections. The instance and middleware are defined in `src/config/arcjet.js` and reused across the app.
+
+Enabled protections (when `ARCJET_API_KEY` is set):
+- Bot protection (global)
+- Shield: reputation and optional country blocking (global)
+- Rate limiting:
+  - Auth endpoints strict limit (default 10 RPM)
+  - Adaptive per-user limiter on write endpoints (default 60 RPM)
+  - Per-route limiter factory for other use
+- Sensitive information detection for write endpoints (secrets/credentials/PII)
+
+Configuration via environment variables:
+- `ARCJET_API_KEY`
+- `ARCJET_ENV` (defaults to NODE_ENV)
+- `ARCJET_RPM_AUTH` (default 10)
+- `ARCJET_RPM_DEFAULT` (default 120)
+- `ARCJET_RPM_USER` (default 60)
+- `ARCJET_BLOCK_COUNTRIES` (CSV of country codes)
+- `ARCJET_SENSITIVE_MODE` (`block` or `log`, default `block`)
+
+If `ARCJET_API_KEY` is not set or the SDK is not available, all Arcjet middlewares are safe no-ops.
+
+## Testing
+
+```bash
+npm test
+```
+
+Note: Tests require a valid `DATABASE_URL` to be set. For local testing, you can use Neon Local or a test PostgreSQL instance.
+
+## Logging
+
+- Uses Winston logger with environment-based log levels
+- Logs API requests and errors
+
+## Error Handling
+
+- Centralized error handling middleware
+- Returns consistent JSON responses with error messages and status codes
+
+# Acquisition API
+
 A Node.js API application built with Express.js, Neon DB PostgreSQL, Drizzle ORM, Winston for logging, and Jest with SuperTest for testing. This application is fully dockerized with support for both local development using Neon Local and production deployment with Neon Cloud.
 
 ## Features
