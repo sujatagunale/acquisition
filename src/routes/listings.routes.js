@@ -8,14 +8,18 @@ import {
   deleteListing,
   getMyListings,
 } from '#controllers/listings.controller.js';
+import { rateLimitPerUser, sensitiveDetector } from '#config/arcjet.js';
 
 const router = express.Router();
+
+const listingLimiter = rateLimitPerUser();
+const sensitive = sensitiveDetector();
 
 router.get('/', getAllListings);
 router.get('/my', authenticateToken, getMyListings);
 router.get('/:id', getListingById);
-router.post('/', authenticateToken, createListing);
-router.put('/:id', authenticateToken, updateListing);
-router.delete('/:id', authenticateToken, deleteListing);
+router.post('/', authenticateToken, listingLimiter, sensitive, createListing);
+router.put('/:id', authenticateToken, listingLimiter, sensitive, updateListing);
+router.delete('/:id', authenticateToken, listingLimiter, deleteListing);
 
 export default router;

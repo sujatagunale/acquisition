@@ -149,6 +149,27 @@ tests/               # Test files
 └── app.test.js      # Application tests
 ```
 
+## Security: Arcjet Integration
+
+This API integrates Arcjet protections:
+- Bot protection (global)
+- Shield: threat intelligence, reputation, and optional geo blocking (global)
+- Rate limiting: strict on auth endpoints; adaptive per-user for write endpoints
+- Sensitive information detection on write endpoints (block/report)
+
+Environment variables:
+- ARCJET_API_KEY
+- ARCJET_ENV=development|production|test
+- ARCJET_RPM_AUTH=10
+- ARCJET_RPM_DEFAULT=120
+- ARCJET_RPM_USER=60
+- ARCJET_BLOCK_COUNTRIES=  (comma-separated ISO codes, e.g. "RU,IR,KP")
+- ARCJET_SENSITIVE_MODE=block  (block|report)
+
+Notes:
+- Protections are no-ops if ARCJET_API_KEY is not set.
+- The server trusts proxy for accurate req.ip. Configure your proxy accordingly.
+
 ## API Endpoints
 
 - `GET /health` - Health check endpoint

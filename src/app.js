@@ -9,14 +9,19 @@ import authRoutes from '#routes/auth.routes.js';
 import listingsRoutes from '#routes/listings.routes.js';
 import dealsRoutes from '#routes/deals.routes.js';
 import errorMiddleware from '#middlewares/error.middleware.js';
+import { botProtection, globalShield } from '#config/arcjet.js';
 
 const app = express();
 
+app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.use(botProtection());
+app.use(globalShield());
 
 app.use(
   morgan('combined', {
