@@ -15,6 +15,7 @@ A Node.js API application built with Express.js, Neon DB PostgreSQL, Drizzle ORM
 ## 🐳 Docker Setup (Recommended)
 
 ### Prerequisites
+
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
 - [Neon account](https://neon.tech/) with API key and project ID
 
@@ -26,6 +27,7 @@ A Node.js API application built with Express.js, Neon DB PostgreSQL, Drizzle ORM
    - Copy your project ID from Project Settings → General
 
 2. **Configure environment:**
+
    ```bash
    # Update .env.development with your Neon credentials
    NEON_API_KEY=your_actual_neon_api_key
@@ -33,10 +35,11 @@ A Node.js API application built with Express.js, Neon DB PostgreSQL, Drizzle ORM
    ```
 
 3. **Start development environment:**
+
    ```bash
    # Using the provided script (recommended)
    ./scripts/dev.sh
-   
+
    # Or manually with docker-compose
    docker-compose up --build
    ```
@@ -54,6 +57,7 @@ A Node.js API application built with Express.js, Neon DB PostgreSQL, Drizzle ORM
 ### Production Deployment
 
 1. **Configure production environment:**
+
    ```bash
    # Create .env.production with your actual values
    DATABASE_URL=postgresql://your-user:your-password@your-host.neon.tech/your-db
@@ -62,10 +66,11 @@ A Node.js API application built with Express.js, Neon DB PostgreSQL, Drizzle ORM
    ```
 
 2. **Deploy to production:**
+
    ```bash
    # Using the provided script (recommended)
    ./scripts/prod.sh
-   
+
    # Or manually
    docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
    ```
@@ -87,11 +92,13 @@ docker logs -f acquisition-app-prod  # View prod logs
 ## 💻 Local Setup (Without Docker)
 
 1. Copy environment variables:
+
    ```bash
    cp .env.example .env
    ```
 
 2. Fill in your database URL in `.env`:
+
    ```
    DATABASE_URL=postgresql://username:password@hostname:port/database_name
    ```
@@ -127,6 +134,7 @@ The project is configured to use absolute imports with the following aliases:
 - `#utils/` - `./src/utils/`
 
 Example usage:
+
 ```javascript
 const logger = require('#config/logger');
 const { users } = require('#models/users');
@@ -160,15 +168,19 @@ tests/               # Test files
 - `NODE_ENV` - Environment (development/production/test)
 - `LOG_LEVEL` - Logging level (default: info)
 - `DATABASE_URL` - PostgreSQL connection string
+- `ARCJET_KEY` - Arcjet API key for security features
+- `ARCJET_ENV` - Arcjet environment (development/production)
 
 ## 🏗️ Docker Architecture
 
 ### Development Environment
+
 - **Neon Local**: Proxy service that creates ephemeral database branches
 - **Application**: Node.js app with hot reload for development
 - **Network**: Isolated Docker network for service communication
 
 ### Production Environment
+
 - **Application Only**: Lightweight production container
 - **Neon Cloud**: Direct connection to your Neon cloud database
 - **No Proxy**: Direct database connection for optimal performance
@@ -178,19 +190,23 @@ tests/               # Test files
 ### Common Issues
 
 **"Connection refused" to database:**
+
 - Ensure Docker is running
 - Verify your NEON_API_KEY and NEON_PROJECT_ID are correct
 - Check that port 5432 is not already in use: `lsof -i :5432`
 
 **"Cannot connect to Docker daemon":**
+
 - Start Docker Desktop
 - On macOS: Ensure Docker Desktop is running in the system tray
 
 **Hot reload not working:**
+
 - Ensure source code is properly mounted: `docker-compose logs app`
 - On macOS with Docker Desktop: Use gRPC FUSE instead of VirtioFS in settings
 
 **Database migrations fail:**
+
 ```bash
 # Run migrations inside the container
 docker compose exec app npm run db:migrate
@@ -237,6 +253,7 @@ docker compose ps
 ## Development
 
 The application uses:
+
 - ESLint for code linting with Prettier integration
 - Winston for structured logging
 - Jest for testing with SuperTest for HTTP assertions

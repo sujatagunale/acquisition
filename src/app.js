@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import logger from '#config/logger.js';
+import aj from '#config/arcjet.js';
 import userRoutes from '#routes/users.routes.js';
 import authRoutes from '#routes/auth.routes.js';
 import listingsRoutes from '#routes/listings.routes.js';
@@ -25,6 +26,32 @@ app.use(
     },
   })
 );
+
+app.use(async (req, res, next) => {
+  const decision = await aj.protect(req);
+
+  if (decision.isDenied()) {
+    if (decision.reason.isRateLimit()) {
+      logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
+      return res.status(429).json({ error: 'Too Many Requests' });
+    } else if (decision.reason.isBot()) {
+      logger.warn(`Bot detected for IP: ${req.ip}`);
+      return res.status(403).json({ error: 'Bot access denied' });
+    } else if (decision.reason.isShield()) {
+      logger.warn(`Shield protection triggered for IP: ${req.ip}`);
+      return res
+        .status(403)
+        .json({ error: 'Request blocked by security shield' });
+    } else {
+      logger.warn(
+        `Request denied for IP: ${req.ip}, reason: ${decision.reason}`
+      );
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+  }
+
+  next();
+});
 
 app.get('/health', (req, res) => {
   res.status(200).json({
