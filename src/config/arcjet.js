@@ -1,140 +1,114 @@
 const ARCJET_ENABLED = !!process.env.ARCJET_API_KEY;
 
-let arcjetClient = null;
-
-async function getClient() {
-  if (!ARCJET_ENABLED) return null;
-  if (arcjetClient) return arcjetClient;
-  try {
+let aj = null;
+try {
+  if (ARCJET_ENABLED) {
     const mod = await import('@arcjet/node');
     const arcjet = mod.default || mod;
-    arcjetClient = arcjet({
+    aj = arcjet({
       apiKey: process.env.ARCJET_API_KEY,
       environment: process.env.ARCJET_ENV || process.env.NODE_ENV || 'development',
     });
-    return arcjetClient;
-  } catch {
-    return null;
   }
+} catch {
+  aj = null;
 }
 
-export function botProtection() {
-  return async (req, res, next) => {
-    const client = await getClient();
-    if (!client) return next();
-    try {
-      if (client.bot && typeof client.bot.protect === 'function') {
-        const mw = client.bot.protect();
-        return mw(req, res, next);
-      }
-      return next();
-    } catch {
-      return next();
-    }
-  };
-}
+const noop = (req, res, next) => next();
 
-export function globalShield() {
-  const countries = (process.env.ARCJET_BLOCK_COUNTRIES || '')
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean);
+const countries = (process.env.ARCJET_BLOCK_COUNTRIES || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
 
-  return async (req, res, next) => {
-    const client = await getClient();
-    if (!client) return next();
-    try {
-      if (client.shield && typeof client.shield.enforce === 'function') {
-        const mw = client.shield.enforce({
-          block: {
-            reputation: true,
-            countries,
-          },
-        });
-        return mw(req, res, next);
-      }
-      return next();
-    } catch {
-      return next();
-    }
-  };
-}
+const authLimit = Number(process.env.ARCJET_RPM_AUTH || 10);
+const defaultRpm = Number(process.env.ARCJET_RPM_DEFAULT || 120);
+const perUserLimit = Number(process.env.ARCJET_RPM_USER || 60);
+const sensitiveAction = (process.env.ARCJET_SENSITIVE_MODE || 'block').toLowerCase();
 
-export function rateLimitPerRoute(rpm) {
-  const limit = Number(rpm || process.env.ARCJET_RPM_DEFAULT || 120);
-  return async (req, res, next) => {
-    const client = await getClient();
-    if (!client) return next();
-    try {
-      if (client.rateLimit && typeof client.rateLimit.fixedWindow === 'function') {
-        const mw = client.rateLimit.fixedWindow({
-          limit,
-          window: '1m',
-          key: r => r.ip,
-        });
-        return mw(req, res, next);
-      }
-      return next();
-    } catch {
-      return next();
-    }
-  };
-}
-
-export function rateLimitAuth() {
-  const limit = Number(process.env.ARCJET_RPM_AUTH || 10);
-  return rateLimitPerRoute(limit);
-}
-
-export function getRequesterId(req) {
+function getRequesterId(req) {
   return (req.user && (req.user.id || req.user._id)) || req.ip || 'anonymous';
 }
 
-export function rateLimitPerUser() {
-  const limit = Number(process.env.ARCJET_RPM_USER || 60);
-  return async (req, res, next) => {
-    const client = await getClient();
-    if (!client) return next();
-    try {
-      if (client.rateLimit && typeof client.rateLimit.slidingWindow === 'function') {
-        const mw = client.rateLimit.slidingWindow({
-          limit,
-          window: '1m',
-          key: r => getRequesterId(r),
-        });
-        return mw(req, res, next);
+const cachedRouteLimiters = new Map();
+
+const botMw =
+  aj && aj.bot && typeof aj.bot.protect === 'function' ? aj.bot.protect() : noop;
+
+let shieldMw = noop;
+if (aj && aj.shield && typeof aj.shield.enforce === 'function') {
+  shieldMw = aj.shield.enforce({
+    block: {
+      reputation: true,
+      countries,
+    },
+  });
+}
+
+function limiterPerRoute(limit) {
+  const lim = Number(limit || defaultRpm);
+  const key = `route:${lim}`;
+  if (cachedRouteLimiters.has(key)) return cachedRouteLimiters.get(key);
+  let mw = noop;
+  if (aj && aj.rateLimit && typeof aj.rateLimit.fixedWindow === 'function') {
+    mw = aj.rateLimit.fixedWindow({
+      limit: lim,
+      window: '1m',
+      key: (r) => r.ip,
+    });
+  }
+  cachedRouteLimiters.set(key, mw);
+  return mw;
+}
+
+const authLimiterMw = limiterPerRoute(authLimit);
+
+let perUserLimiterMw = noop;
+if (aj && aj.rateLimit && typeof aj.rateLimit.slidingWindow === 'function') {
+  perUserLimiterMw = aj.rateLimit.slidingWindow({
+    limit: perUserLimit,
+    window: '1m',
+    key: (r) => getRequesterId(r),
+  });
+}
+
+let sensitiveMw = noop;
+if (aj && aj.sensitive && typeof aj.sensitive.detect === 'function') {
+  sensitiveMw = aj.sensitive.detect({
+    action: sensitiveAction,
+    categories: ['secrets', 'credentials', 'pii'],
+    text: (r) => {
+      try {
+        return JSON.stringify(r.body ?? {});
+      } catch {
+        return '';
       }
-      return next();
-    } catch {
-      return next();
-    }
-  };
+    },
+  });
+}
+
+export function botProtection() {
+  return botMw;
+}
+
+export function globalShield() {
+  return shieldMw;
+}
+
+export function rateLimitPerRoute(rpm) {
+  return limiterPerRoute(rpm);
+}
+
+export function rateLimitAuth() {
+  return authLimiterMw;
+}
+
+export function rateLimitPerUser() {
+  return perUserLimiterMw;
 }
 
 export function sensitiveDetector() {
-  const action = (process.env.ARCJET_SENSITIVE_MODE || 'block').toLowerCase();
-  const categories = ['secrets', 'credentials', 'pii'];
-  return async (req, res, next) => {
-    const client = await getClient();
-    if (!client) return next();
-    try {
-      if (client.sensitive && typeof client.sensitive.detect === 'function') {
-        const mw = client.sensitive.detect({
-          action,
-          categories,
-          text: r => {
-            try {
-              return JSON.stringify(r.body ?? {});
-            } catch {
-              return '';
-            }
-          },
-        });
-        return mw(req, res, next);
-      }
-      return next();
-    } catch {
-      return next();
-    }
-  };
+  return sensitiveMw;
 }
+
+export { aj as arcjetClient };
