@@ -1,40 +1,48 @@
-import aj from '#config/arcjet.js';
+import arcjet from '@arcjet/node';
+import { validateBody } from '#utils/custom-rules.js';
 import { signupSchema, signinSchema } from '#validations/auth.validation.js';
 import logger from '#config/logger.js';
 
+const signupAj = arcjet({
+  key: process.env.ARCJET_KEY || 'ajkey_01k3t9534deq3rs2eb96fgsd2k',
+  rules: [
+    ...validateBody({
+      mode: 'LIVE',
+      schema: signupSchema,
+    }),
+  ],
+});
+
+const signinAj = arcjet({
+  key: process.env.ARCJET_KEY || 'ajkey_01k3t9534deq3rs2eb96fgsd2k',
+  rules: [
+    ...validateBody({
+      mode: 'LIVE',
+      schema: signinSchema,
+    }),
+  ],
+});
+
 export const signupValidationMiddleware = async (req, res, next) => {
   try {
-    const validationResult = signupSchema.safeParse(req.body);
-    
-    if (!validationResult.success) {
-      logger.warn('Signup validation failed', {
+    if (process.env.NODE_ENV === 'test') {
+      return next();
+    }
+
+    const decision = await signupAj.protect(req);
+
+    if (decision.isDenied()) {
+      logger.warn('Signup validation failed via Arcjet custom rule', {
         ip: req.ip,
-        errors: validationResult.error.errors,
         path: req.path,
+        reason: decision.reason,
       });
       
       return res.status(400).json({
         error: 'Validation failed',
         message: 'Invalid signup data',
-        details: validationResult.error.errors,
+        details: decision.reason.error || 'Validation error',
       });
-    }
-
-    if (process.env.NODE_ENV !== 'test') {
-      const decision = await aj.protect(req);
-
-      if (decision.isDenied()) {
-        logger.warn('Arcjet protection triggered for signup', {
-          ip: req.ip,
-          path: req.path,
-          reason: decision.reason,
-        });
-        
-        return res.status(400).json({
-          error: 'Validation failed',
-          message: 'Request validation failed',
-        });
-      }
     }
 
     next();
@@ -46,37 +54,24 @@ export const signupValidationMiddleware = async (req, res, next) => {
 
 export const signinValidationMiddleware = async (req, res, next) => {
   try {
-    const validationResult = signinSchema.safeParse(req.body);
-    
-    if (!validationResult.success) {
-      logger.warn('Signin validation failed', {
+    if (process.env.NODE_ENV === 'test') {
+      return next();
+    }
+
+    const decision = await signinAj.protect(req);
+
+    if (decision.isDenied()) {
+      logger.warn('Signin validation failed via Arcjet custom rule', {
         ip: req.ip,
-        errors: validationResult.error.errors,
         path: req.path,
+        reason: decision.reason,
       });
       
       return res.status(400).json({
         error: 'Validation failed',
         message: 'Invalid signin data',
-        details: validationResult.error.errors,
+        details: decision.reason.error || 'Validation error',
       });
-    }
-
-    if (process.env.NODE_ENV !== 'test') {
-      const decision = await aj.protect(req);
-
-      if (decision.isDenied()) {
-        logger.warn('Arcjet protection triggered for signin', {
-          ip: req.ip,
-          path: req.path,
-          reason: decision.reason,
-        });
-        
-        return res.status(400).json({
-          error: 'Validation failed',
-          message: 'Request validation failed',
-        });
-      }
     }
 
     next();
