@@ -1,7 +1,8 @@
 import { slidingWindow } from '@arcjet/node';
 import aj from '#config/arcjet.js';
+import logger from '#config/logger.js';
 
-const ratelimitMiddleware = async (req, res, next) => {
+const securityMiddleware = async (req, res, next) => {
   try {
     const role = req.user?.role || 'guest';
 
@@ -35,7 +36,40 @@ const ratelimitMiddleware = async (req, res, next) => {
 
     const decision = await client.protect(req);
 
+    if (decision.isDenied() && decision.reason.isBot()) {
+      logger.warn('Bot request blocked', {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        path: req.path,
+      });
+
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Automated requests are not allowed',
+      });
+    }
+
+    if (decision.isDenied() && decision.reason.isShield()) {
+      logger.warn('Shield WAF blocked request', {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        path: req.path,
+        method: req.method,
+      });
+
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Request blocked by security policy',
+      });
+    }
+
     if (decision.isDenied() && decision.reason.isRateLimit()) {
+      logger.warn('Rate limit exceeded', {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        path: req.path,
+      });
+
       return res.status(429).json({
         error: 'Too Many Requests',
         message,
@@ -47,9 +81,9 @@ const ratelimitMiddleware = async (req, res, next) => {
     console.error('Arcjet middleware error:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Something went wrong with the rate limiter.',
+      message: 'Something went wrong with the security middleware.',
     });
   }
 };
 
-export default ratelimitMiddleware;
+export default securityMiddleware;

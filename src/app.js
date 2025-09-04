@@ -9,7 +9,7 @@ import authRoutes from '#routes/auth.routes.js';
 import listingsRoutes from '#routes/listings.routes.js';
 import dealsRoutes from '#routes/deals.routes.js';
 import errorMiddleware from '#middlewares/error.middleware.js';
-import ratelimitMiddleware from '#middlewares/ratelimit.middleware.js';
+import securityMiddleware from '#middlewares/security.middleware.js';
 
 const app = express();
 
@@ -27,7 +27,7 @@ app.use(
   })
 );
 
-app.use(ratelimitMiddleware);
+app.use(securityMiddleware);
 
 app.get('/health', (req, res) => {
   res.status(200).json({
