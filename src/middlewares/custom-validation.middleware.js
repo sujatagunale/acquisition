@@ -14,25 +14,27 @@ export const signupValidationMiddleware = async (req, res, next) => {
       });
       
       return res.status(400).json({
-        error: 'Validation Error',
+        error: 'Validation failed',
         message: 'Invalid signup data',
         details: validationResult.error.errors,
       });
     }
 
-    const decision = await aj.protect(req);
+    if (process.env.NODE_ENV !== 'test') {
+      const decision = await aj.protect(req);
 
-    if (decision.isDenied()) {
-      logger.warn('Arcjet protection triggered for signup', {
-        ip: req.ip,
-        path: req.path,
-        reason: decision.reason,
-      });
-      
-      return res.status(400).json({
-        error: 'Validation Error',
-        message: 'Request validation failed',
-      });
+      if (decision.isDenied()) {
+        logger.warn('Arcjet protection triggered for signup', {
+          ip: req.ip,
+          path: req.path,
+          reason: decision.reason,
+        });
+        
+        return res.status(400).json({
+          error: 'Validation failed',
+          message: 'Request validation failed',
+        });
+      }
     }
 
     next();
@@ -54,25 +56,27 @@ export const signinValidationMiddleware = async (req, res, next) => {
       });
       
       return res.status(400).json({
-        error: 'Validation Error',
+        error: 'Validation failed',
         message: 'Invalid signin data',
         details: validationResult.error.errors,
       });
     }
 
-    const decision = await aj.protect(req);
+    if (process.env.NODE_ENV !== 'test') {
+      const decision = await aj.protect(req);
 
-    if (decision.isDenied()) {
-      logger.warn('Arcjet protection triggered for signin', {
-        ip: req.ip,
-        path: req.path,
-        reason: decision.reason,
-      });
-      
-      return res.status(400).json({
-        error: 'Validation Error',
-        message: 'Request validation failed',
-      });
+      if (decision.isDenied()) {
+        logger.warn('Arcjet protection triggered for signin', {
+          ip: req.ip,
+          path: req.path,
+          reason: decision.reason,
+        });
+        
+        return res.status(400).json({
+          error: 'Validation failed',
+          message: 'Request validation failed',
+        });
+      }
     }
 
     next();

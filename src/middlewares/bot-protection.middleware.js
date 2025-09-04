@@ -4,6 +4,10 @@ import logger from '#config/logger.js';
 
 const botProtectionMiddleware = async (req, res, next) => {
   try {
+    if (process.env.NODE_ENV === 'test') {
+      return next();
+    }
+
     const client = aj.withRule(
       detectBot({
         mode: 'LIVE',
@@ -11,11 +15,6 @@ const botProtectionMiddleware = async (req, res, next) => {
           'CATEGORY:SEARCH_ENGINE',
           'CATEGORY:PREVIEW',
           'CATEGORY:MONITOR',
-        ],
-        deny: [
-          'CATEGORY:AI',
-          'CATEGORY:SCRAPER',
-          'CATEGORY:AUTOMATED',
         ],
       })
     );

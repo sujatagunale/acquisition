@@ -3,6 +3,10 @@ import logger from '#config/logger.js';
 
 const geolocationMiddleware = async (req, res, next) => {
   try {
+    if (process.env.NODE_ENV === 'test') {
+      return next();
+    }
+
     const decision = await aj.protect(req);
 
     if (decision.isDenied() && decision.ip?.country) {

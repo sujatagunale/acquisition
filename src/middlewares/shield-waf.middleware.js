@@ -4,6 +4,10 @@ import logger from '#config/logger.js';
 
 const shieldWafMiddleware = async (req, res, next) => {
   try {
+    if (process.env.NODE_ENV === 'test') {
+      return next();
+    }
+
     const client = aj.withRule(
       shield({
         mode: 'LIVE',
