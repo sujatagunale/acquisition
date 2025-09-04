@@ -10,6 +10,9 @@ import listingsRoutes from '#routes/listings.routes.js';
 import dealsRoutes from '#routes/deals.routes.js';
 import errorMiddleware from '#middlewares/error.middleware.js';
 import ratelimitMiddleware from '#middlewares/ratelimit.middleware.js';
+import geolocationMiddleware from '#middlewares/geolocation.middleware.js';
+import botProtectionMiddleware from '#middlewares/bot-protection.middleware.js';
+import shieldWafMiddleware from '#middlewares/shield-waf.middleware.js';
 
 const app = express();
 
@@ -27,6 +30,9 @@ app.use(
   })
 );
 
+app.use(geolocationMiddleware);
+app.use(shieldWafMiddleware);
+app.use(botProtectionMiddleware);
 app.use(ratelimitMiddleware);
 
 app.get('/health', (req, res) => {
